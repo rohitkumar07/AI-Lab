@@ -91,6 +91,7 @@ int linear_conflict(int current[][3], int goal[][3]){
 			for(int k=j+1; k<3; k++){
 				int p,l, m,n;
 				bool found = false;
+				if (current[i][j] == 0 || current[i][k] == 0) continue;
 				for (p = 0; p < 3; p++){
 					for ( l = 0; l < 3; l++){
 						if (goal[p][l] == current[i][j]){
@@ -121,7 +122,7 @@ int linear_conflict(int current[][3], int goal[][3]){
 int heuristic_distance(int current[][3],int goal[][3]){
 	//return 0;
 
-		//return manhattan_distance(current, goal) ;
+	//return manhattan_distance(current, goal) ;
 	return  manhattan_distance(current, goal) + linear_conflict(current, goal);;
 	//return displaced_tiles(current,goal);
 }
@@ -234,6 +235,7 @@ void print_matrix(int mat[][3]){
 	cout << endl;
 }
 
+int extraComparisions = 0;
 
 int aStar(node* &start, node* &goal){
 
@@ -253,12 +255,9 @@ int aStar(node* &start, node* &goal){
 	while(!openlist.empty()){
 	//while(openlist.size() < 10) {
 		//cout << openlist.size() <<  " here1\n";
-		//cout << openlistMap.size() <<  " here2\n";
 		itr = openlist.begin();
 
 		node* current = (*itr).second;
-		//cout << "printing preferred matrix:\n";
-		//print_matrix(current->state);
 
 		if (equal_node(current, goal)){
 			goal = current;
@@ -269,11 +268,7 @@ int aStar(node* &start, node* &goal){
 		searchItr = openlistMap.find(current);
 		openlistMap.erase(searchItr);
 
-		//cout << openlist.size() <<  " here3\n";
-		//cout << openlistMap.size() <<  " here4\n";
-
 		closedlist.insert(current);
-		//cout << closedlist.size() <<  " here5\n";
 
 		vector<node*> adj;
 		giveAdjacencyList(current, adj, goal);
@@ -283,24 +278,24 @@ int aStar(node* &start, node* &goal){
 
 		for (int i = 0; i < adj.size(); i++){ // expanding the current node 
 			node* next = adj[i];
-		//	cout << "printing Adjacency List:\n";
-		//	print_matrix(next->state);
-		//	cout << "printing closed List:\n";
-		//	for (set<node*>:: iterator t = closedlist.begin(); t!=closedlist.end(); t++)
-		//		print_matrix((*t)->state);
 
-			if(closedlist.find(next) != closedlist.end()) {
-		//		cout << "present in closed list\n";
-				continue; // continue if present in closedlist
+			set<node*>::iterator setItr = closedlist.find(next);
+			if(setItr != closedlist.end()) {
+				extraComparisions++;
+				if ((*setItr)->Gcost + (*setItr)->Hcost > next->Gcost + next->Hcost){
+					closedlist.erase(setItr);
+					itr = openlist.insert(multimap<int, node*>::value_type(next->Gcost + next->Hcost,  next));
+					openlistMap.insert(map<node*, multimap<int,node*>::iterator >::value_type(next, itr));
+					continue;
+				}
+				else continue; // continue if present in closedlist
 			}
-		//	else cout << "hello\n";
 
 			searchItr = openlistMap.find(next);
 			if (searchItr != openlistMap.end()){
 		//		cout << "present in open list\n";
 				if (searchItr->first->Gcost + searchItr->first->Hcost > next->Gcost + next->Hcost)
 				{
-		//			cout << "updated\n";
 					openlist.erase(searchItr->second);
 					openlistMap.erase(searchItr);
 					itr = openlist.insert(multimap<int, node*>::value_type(next->Gcost + next->Hcost,  next));
@@ -320,15 +315,18 @@ int aStar(node* &start, node* &goal){
 
 
 int main(){
-	int mat[3][3] = {	{2,8,1},
-						{4,6,3},
-						{7,5,0}};
+	int mat[3][3] = {	{4,1,2},
+						{0,8,7},
+						{6,3,5}};
 	//print_matrix(mat);
 	
 	int mat1[3][3] = {	{1,2,3},
-						{8,4,0},
-						{7,6,5}};
+						{4,5,6},
+						{7,8,0}};
+	//cout << manhattan_distance(mat, mat1);
 	
+/*
+
 	vector<int> v1,v2;
 	for(int i =0; i < 3; i++) for(int j =0; j < 3; j++) {
 		v1.push_back(mat[i][j]);
@@ -336,7 +334,8 @@ int main(){
 	}
 	if ((invct(v1, 0, 10) - invct(v2,0,10))&1) cout << "The goal is not reachable from the start\n";
 	else cout << "The goal is reachable from the start\n";
-
+*/
+	
 	node* start = new node(mat,0, heuristic_distance(mat, mat1),NULL);
 	node* goal = new node(mat1,0, 0,NULL);
 	int expandedNodes = aStar(start, goal);
@@ -344,6 +343,7 @@ int main(){
 		cout << "Path Found!\n";
 		cout << "Optimal cost: " << goal->Gcost << endl;
 		cout << "No. of expanded nodes: " << expandedNodes << endl;
+		cout << "Extra comparisions compared to Monotone Restriction : " << extraComparisions << endl; 
 	}
 	else cout << "Path Not Found!\n";
 	/*
