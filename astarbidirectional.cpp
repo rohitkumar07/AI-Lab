@@ -122,8 +122,8 @@ int linear_conflict(int current[][3], int goal[][3]){
 int heuristic_distance(int current[][3],int goal[][3]){
 	//return 0;
 
-	//return manhattan_distance(current, goal) ;
-	return  manhattan_distance(current, goal) + linear_conflict(current, goal);;
+	return manhattan_distance(current, goal) ;
+	//return  manhattan_distance(current, goal) + linear_conflict(current, goal);;
 	//return displaced_tiles(current,goal);
 }
 
@@ -239,30 +239,28 @@ int expandedNodes = 0;
 
 int aStar(node* &start, node* &goal){
 
-	multimap<int, node*> openlistStart;
-	set<node*, compare> closedlistStart;// all the nodes which have been expanded
-	map<node*, map<int,node*>:: iterator, compare> openlistMapStart;
+	// Data Structures
+	multimap<int, node*> openlistStart, openlistGoal;
+	set<node*, compare> closedlistStart, closedlistGoal;// all the nodes which have been expanded
+	map<node*, map<int,node*>:: iterator, compare> openlistMapStart, openlistMapGoal;
 
-	multimap<int, node*> openlistGoal;
-	set<node*, compare> closedlistGoal;// all the nodes which have been expanded
-	map<node*, map<int,node*>:: iterator, compare> openlistMapGoal;
-
+	// Iterators
 	map<int, node*> :: iterator itr;
 	map<node*, multimap<int,node*>:: iterator>::iterator searchItr;
 	set<node*>::iterator setItr;
 
+	// Inserting Start Node
 	itr = openlistStart.insert(multimap<int, node*>::value_type(start->Gcost + start->Hcost,  start));
 	openlistMapStart.insert(map<node*, multimap<int,node*>::iterator >::value_type(start, itr));
 
+	// Inserting Goal Node
 	itr = openlistGoal.insert(multimap<int, node*>::value_type(goal->Gcost + goal->Hcost,  goal));
 	openlistMapGoal.insert(map<node*, multimap<int,node*>::iterator >::value_type(goal, itr));
 
-	//closedlistGoal.insert(goal);
 	node* current; 
-	//vector<node*> adj;
+	vector<node*> adj;
 
 	while(!openlistStart.empty() && !openlistGoal.empty()){
-	//while(openlist.size() < 10) {
 		//cout << openlist.size() <<  " here1\n";
 
 		// Forward Search
@@ -284,9 +282,9 @@ int aStar(node* &start, node* &goal){
 		closedlistStart.insert(current);
 
 		//cout <<  adj.size() <<" here1\n";
-		vector<node*> adj;
+		//vector<node*> adj;
 		giveAdjacencyList(current, adj, goal);
-		// void giveAdjacencyList(node* &current,vector<node*> &adj)
+		// void giveAdjacencyList(node* &current,vector<node*> &adj, node* &goal)
 
 		for (int i = 0; i < adj.size(); i++){ // expanding the current node 
 			node* next = adj[i];
@@ -376,12 +374,14 @@ int main(){
 	//cout << manhattan_distance(mat, mat1);
 	*/
 	
-	int mat[3][3] = {	{5,6,7},
-						{4,8,0},
-						{3,2,1}};
+
+	// Bidirectional Gives a suboptimal path :::
+	int mat[3][3] = {	{8,7,6},
+						{1,0,5},
+						{2,3,4}};
 
 	int mat1[3][3] = {	{1,2,3},
-						{8,4,0},
+						{8,0,4},
 						{7,6,5}};
 
 	
@@ -394,7 +394,10 @@ int main(){
 		cout << "Optimal cost: " << optimalCost << endl;
 		cout << "No. of expanded nodes: " << expandedNodes << endl;
 	}
-	else cout << "Path Not Found!\n";
+	else {
+		cout << "Path Not Found!\n";
+		cout << "No. of expanded nodes: " << expandedNodes << endl;
+	}
 	/*
 	vector<node*> adj;
 	giveAdjacencyList(q,adj,r);
