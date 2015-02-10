@@ -196,6 +196,17 @@ def hypoRecurse(lhs):	# lhs is set of hypothesis
 			lhs = lhsnew
 	return 0
 
+def derivable(s, hyposet):
+	if s in hyposet:
+		return True
+	for i in hyposet:
+		if notIsSingle(i):
+			y = splitX(i)
+			if deParenthesize(y[1]) == deParenthesize(s):
+				if (derivable(y[0], hyposet)):
+					hyposet.append(y[1])
+					newHyposet = modusponens(hyposet)
+
 e = parse(input())
-hypoRecurse(formHypothesisSet(e))
+derivable("F", formHypothesisSet(e))
 

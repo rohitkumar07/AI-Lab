@@ -118,7 +118,20 @@ def modusponens(lhs):
 					rhs.append(temp[1])
 	return list(set(lhs + rhs))
 
-
+def applyAll(lhs):
+	lhs = modusponens(lhs)
+	rhs = []
+	for x in lhs:
+		x = deParenthesize(x)
+		if notIsSingle(x):
+			y = splitX(x)
+			rhs.append(theorem1(y[0],y[1]))
+			rhs.append(contrapositve(y[0],y[1]))
+			if notIsSingle(y[1]):
+				z = splitX(y[1])
+				rhs.append(theorem2(y[0],z[0], z[1]))
+		rhs.append(theorem3(x))
+	return list(set(lhs + rhs))
 
 #print(parenthesize("a"))
 '''
@@ -128,6 +141,7 @@ print(theorem1("a","(b>c)"))
 print(theorem3("a"))
 #print(deParenthesize("(a>(b>c))"))
 '''
+
 def formHypothesisSet(e):
 	lhs = []
 	while notIsSingle(e):
@@ -149,7 +163,7 @@ def hypoRecurse(lhs):	# lhs is set of hypothesis
 			print("Found!", i)
 			return 1
 		else:
-			lhsnew = modusponens(lhs)			
+			lhsnew = applyAll(lhs)			
 			lhsnew.sort()
 			if lhsnew == lhs:
 				print("I need a hint!")
@@ -190,7 +204,7 @@ def hypoRecurse(lhs):	# lhs is set of hypothesis
 					else:
 						print("Invalid theorem added by user!")
 			else:
-				print("Modified by modus-ponens!")
+				print("Modified by modus-ponens and axioms!")
 				print(lhsnew)
 				print(lhs)
 			lhs = lhsnew
