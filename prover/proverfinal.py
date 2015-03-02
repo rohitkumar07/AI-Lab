@@ -118,20 +118,7 @@ def modusponens(lhs):
 					rhs.append(temp[1])
 	return list(set(lhs + rhs))
 
-def applyAll(lhs):
-	lhs = modusponens(lhs)
-	rhs = []
-	for x in lhs:
-		x = deParenthesize(x)
-		if notIsSingle(x):
-			y = splitX(x)
-			rhs.append(theorem1(y[0],y[1]))
-			rhs.append(contrapositve(y[0],y[1]))
-			if notIsSingle(y[1]):
-				z = splitX(y[1])
-				rhs.append(theorem2(y[0],z[0], z[1]))
-		rhs.append(theorem3(x))
-	return list(set(lhs + rhs))
+
 
 #print(parenthesize("a"))
 '''
@@ -141,7 +128,6 @@ print(theorem1("a","(b>c)"))
 print(theorem3("a"))
 #print(deParenthesize("(a>(b>c))"))
 '''
-
 def formHypothesisSet(e):
 	lhs = []
 	while notIsSingle(e):
@@ -157,15 +143,34 @@ def formHypothesisSet(e):
 def hypoRecurse(lhs):	# lhs is set of hypothesis
 	lhs = list(set(lhs))
 	lhs.sort()
+	if len(lhs) == 1:
+		if not lhs[0] == "F" and not notIsSingle(lhs[0]):
+			return False
+
 	print("Initial Hypothesis set: ", lhs)
-	for i in range(0,10):
+	for i in range(0,1000):
 		if "F" in lhs:
 			print("Found!", i)
-			return 1
+			return True
 		else:
-			lhsnew = applyAll(lhs)			
+			lhsnew = modusponens(lhs)			
 			lhsnew.sort()
 			if lhsnew == lhs:
+				Found = False
+				for j in range(0,len(lhsnew)):
+					if notIsSingle(lhsnew[j]):
+						temp = splitX(lhsnew[j])
+						x = formHypothesisSet(temp[0])
+						x = x + lhsnew[:j] + lhsnew[j+1:]
+						if hypoRecurse(x):
+							Found = True
+							lhsnew = lhsnew[:j] + lhsnew[j+1:]
+							lhsnew.append(temp[0])
+							lhsnew.append(temp[1])
+							break
+				if not Found:
+					return Found
+				"""
 				print("I need a hint!")
 				print("Enter type of axiom/theorem (without quotes): ")
 				print("'1' for axiom 1")
@@ -203,41 +208,14 @@ def hypoRecurse(lhs):	# lhs is set of hypothesis
 						lhsnew.append(p)
 					else:
 						print("Invalid theorem added by user!")
+				"""
 			else:
-				print("Modified by modus-ponens and axioms!")
+				print("Modified by modus-ponens!")
 				print(lhsnew)
 				print(lhs)
 			lhs = lhsnew
 	return 0
 
-def derive(e):
-	bfsQueue = []
-	bfsQueue.append(["F", "#"])
-	hyposet = formHypothesisSet(e)
-	print("Hypothesis Set: ", hyposet)
-	while(len(bfsQueue) < 1000 and len(bfsQueue) > 0):	# upper limit on queue size
-		print("bfsQueue: ", bfsQueue)
-		current = deParenthesize(bfsQueue[0][0])
-		currentParent = deParenthesize(bfsQueue[0][1])
-		bfsQueue = bfsQueue[1:]
-		if current in hyposet:
-			print(current)
-			while not currentParent == "#":
-
-
-			print("Proved!")
-			return True
-		for x in hyposet:
-			if notIsSingle(x):
-				temp = splitX(x)
-				if temp[1] == current:	# rhs is equal to what has to be proved
-					bfsQueue.append([temp[0], current])
-
-
-
-
-
 e = parse(input())
-derive(e)
-#hypoRecurse(formHypothesisSet(e))
+hypoRecurse(formHypothesisSet(e))
 

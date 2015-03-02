@@ -1,0 +1,31 @@
+
+Parsed form:  ((p>q)>((r>s)>t))>((u>((r>s)>t))>((p>u)>(s>t)))
+Initial Hypothesis set:  ['(p>q)>((r>s)>t)', 'p>u', 's', 't>F', 'u>((r>s)>t)']
+Initial Hypothesis set:  ['p', 'p>u', 'q>F', 's', 't>F', 'u>((r>s)>t)']
+Modified by modus-ponens!
+['p', 'p>u', 'q>F', 's', 't>F', 'u', 'u>((r>s)>t)']
+['p', 'p>u', 'q>F', 's', 't>F', 'u>((r>s)>t)']
+Modified by modus-ponens!
+['(r>s)>t', 'p', 'p>u', 'q>F', 's', 't>F', 'u', 'u>((r>s)>t)']
+['p', 'p>u', 'q>F', 's', 't>F', 'u', 'u>((r>s)>t)']
+Initial Hypothesis set:  ['p', 'p>u', 'q>F', 'r', 's', 's>F', 't>F', 'u', 'u>((r>s)>t)']
+Modified by modus-ponens!
+['(r>s)>t', 'F', 'p', 'p>u', 'q>F', 'r', 's', 's>F', 't>F', 'u', 'u>((r>s)>t)']
+['p', 'p>u', 'q>F', 'r', 's', 's>F', 't>F', 'u', 'u>((r>s)>t)']
+Found! 1
+Modified by modus-ponens!
+['(r>s)>t', 'F', 'p', 'p>u', 'q>F', 'r>s', 's', 't', 't>F', 'u', 'u>((r>s)>t)']
+['p', 'p>u', 'q>F', 's', 't>F', 'u', 'u>((r>s)>t)', 'r>s', 't']
+Found! 4
+Modified by modus-ponens!
+['(r>s)>t', 'p>q', 'p>u', 's', 't>F', 'u>((r>s)>t)']
+['p>u', 's', 't>F', 'u>((r>s)>t)', 'p>q', '(r>s)>t']
+Initial Hypothesis set:  ['p>q', 'p>u', 'r', 's', 's>F', 't>F', 'u>((r>s)>t)']
+Modified by modus-ponens!
+['F', 'p>q', 'p>u', 'r', 's', 's>F', 't>F', 'u>((r>s)>t)']
+['p>q', 'p>u', 'r', 's', 's>F', 't>F', 'u>((r>s)>t)']
+Found! 1
+Modified by modus-ponens!
+['F', 'p>q', 'p>u', 'r>s', 's', 't', 't>F', 'u>((r>s)>t)']
+['p>q', 'p>u', 's', 't>F', 'u>((r>s)>t)', 'r>s', 't']
+Found! 4
