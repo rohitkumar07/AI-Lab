@@ -1,0 +1,12 @@
+Path Found!
+Optimal cost: 24
+No. of expanded nodes: 1296
+Path Found!
+Optimal cost: 26
+No. of expanded nodes: 566
+Path Not Found!
+Path Not Found!
+Path Not Found!
+Path Found!
+Optimal cost: 19
+No. of expanded nodes: 393
