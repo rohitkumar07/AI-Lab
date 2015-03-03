@@ -1,0 +1,44 @@
+Parsed form:  ((p>F)>q)>((p>(q>F))>F)
+
+Initial Hypothesis set:  ['(p>F)>q', 'p>(q>F)']
+
+Initial Hypothesis set:  ['p', 'p>(q>F)']
+Modified by modus-ponens!
+['p', 'p>(q>F)', 'q>F']
+['p', 'p>(q>F)']
+
+Initial Hypothesis set:  ['p', 'p>F', 'q>F']
+Modified by modus-ponens!
+['F', 'p', 'p>F', 'q>F']
+['p', 'p>F', 'q>F']
+Found!
+ 1
+New hypothesis set:  ['p', 'q>F', 'p', 'q>F']
+Modified by modus-ponens!
+['p', 'q>F']
+['p', 'q>F', 'p', 'q>F']
+False Returned
+
+Initial Hypothesis set:  ['(p>F)>q', 'p>F']
+Modified by modus-ponens!
+['(p>F)>q', 'p>F', 'q']
+['(p>F)>q', 'p>F']
+
+Initial Hypothesis set:  ['p', 'p>F', 'q']
+Modified by modus-ponens!
+['F', 'p', 'p>F', 'q']
+['p', 'p>F', 'q']
+Found!
+ 1
+New hypothesis set:  ['p>F', 'q', 'p>F', 'q']
+Modified by modus-ponens!
+['p>F', 'q']
+['p>F', 'q', 'p>F', 'q']
+False Returned
+I need a hint!
+Enter type of axiom/theorem (without quotes): 
+'1' for axiom 1
+'2' for axiom 2
+'3' for axiom 3
+'4' for contrapositve
+'5' for any other theorem

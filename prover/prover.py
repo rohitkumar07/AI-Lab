@@ -161,31 +161,31 @@ def hypoRecurse(lhs):	# lhs is set of hypothesis
 				print("'5' for any other theorem")
 				t = int(input())
 				if t == 1:
-					p = input()
-					q = input()
+					p = parse(input())
+					q = parse(input())
 					print("Added theorem 1:" ,theorem1(p,q))
 					lhsnew.append(theorem1(p,q))
 				if t == 2:
-					p = input()
-					q = input()
-					r = input()
+					p = parse(input())
+					q = parse(input())
+					r = parse(input())
 					print("Added theorem 2:" ,theorem2(p,q,r))
 					lhsnew.append(theorem2(p,q,r))
 				if t == 3:
-					p = input()
+					p = parse(input())
 					print("Added theorem 3:" ,theorem3(p))
 					lhsnew.append(theorem3(p))
 				if t == 4:
-					p = input()
-					q = input()
+					p = parse(input())
+					q = parse(input())
 					print("Added contrapositive statement:" , contrapositve(p,q))
 					lhsnew.append(contrapositve(p,q))
 				if t == 5:
-					p = input()
+					p = parse(input())
 					print("Proving theorem:" ,p)
 					p = parse(p)
 					lhsRecurse = formHypothesisSet(p)
-					if hypoRecurse(lhsRecurse) == 1:
+					if hypoRecurse(lhsRecurse, 0) == 1:
 						lhsnew.append(p)
 					else:
 						print("Invalid theorem added by user!")

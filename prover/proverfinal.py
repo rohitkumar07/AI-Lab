@@ -54,10 +54,10 @@ def formImplies(a,b):
 	return parenthesize(a) + ">" + parenthesize(b)
 
 def theorem1(a, b):
-	return parenthesize(a) + ">(" + parenthesize(b) + ">" + parenthesize(a) + ")"
+	return formImplies(a,formImplies(b,a))
 
 def theorem2(a,b,c):
-	return "(" + parenthesize(a)  + ">(" + formImplies(b,c) + "))>((" + formImplies(a,b) + ")>(" + formImplies(a,c) + "))"
+	return formImplies(formImplies(a, formImplies(b,c)), formImplies(formImplies(a,b), formImplies(a,c)))
 
 def theorem3(a):
 	return formImplies(formImplies(formImplies(a,"F"),"F"),a)
@@ -89,6 +89,8 @@ def convertOr(s):
 	i = s.find("v")
 	openparanthesis = 0
 	closedparanthesis = 0
+	a = ""
+	b = ""
 	for x in range(i+1,len(s)):
 		if s[x] == '(' :
 			openparanthesis = openparanthesis + 1
@@ -140,17 +142,17 @@ def formHypothesisSet(e):
 	return lhs
 
 
-def hypoRecurse(lhs):	# lhs is set of hypothesis
+def hypoRecurse(lhs, level):	# lhs is set of hypothesis
 	lhs = list(set(lhs))
 	lhs.sort()
 	if len(lhs) == 1:
 		if not lhs[0] == "F" and not notIsSingle(lhs[0]):
 			return False
 
-	print("Initial Hypothesis set: ", lhs)
+	print("\nInitial Hypothesis set: ", lhs)
 	for i in range(0,1000):
 		if "F" in lhs:
-			print("Found!", i)
+			print("Found!\n", i)
 			return True
 		else:
 			lhsnew = modusponens(lhs)			
@@ -162,53 +164,62 @@ def hypoRecurse(lhs):	# lhs is set of hypothesis
 						temp = splitX(lhsnew[j])
 						x = formHypothesisSet(temp[0])
 						x = x + lhsnew[:j] + lhsnew[j+1:]
-						if hypoRecurse(x):
-							Found = True
-							lhsnew = lhsnew[:j] + lhsnew[j+1:]
-							lhsnew.append(temp[0])
-							lhsnew.append(temp[1])
-							break
+						x = list(set(x))
+						x.sort()
+						if not x == lhsnew:
+							if hypoRecurse(x, level+1):
+								Found = True
+								lhsnew = lhsnew[:j] + lhsnew[j+1:]
+								lhsnew.append(temp[0])
+								lhsnew.append(temp[1])
+								lhsnew = list(set(lhsnew))
+								print("New hypothesis set: ", lhsnew)
+								break
 				if not Found:
-					return Found
-				"""
-				print("I need a hint!")
-				print("Enter type of axiom/theorem (without quotes): ")
-				print("'1' for axiom 1")
-				print("'2' for axiom 2")
-				print("'3' for axiom 3")
-				print("'4' for contrapositve")
-				print("'5' for any other theorem")
-				t = int(input())
-				if t == 1:
-					p = input()
-					q = input()
-					print("Added theorem 1:" ,theorem1(p,q))
-					lhsnew.append(theorem1(p,q))
-				if t == 2:
-					p = input()
-					q = input()
-					r = input()
-					print("Added theorem 2:" ,theorem2(p,q,r))
-					lhsnew.append(theorem2(p,q,r))
-				if t == 3:
-					p = input()
-					print("Added theorem 3:" ,theorem3(p))
-					lhsnew.append(theorem3(p))
-				if t == 4:
-					p = input()
-					q = input()
-					print("Added contrapositive statement:" , contrapositve(p,q))
-					lhsnew.append(contrapositve(p,q))
-				if t == 5:
-					p = input()
-					print("Proving theorem:" ,p)
-					p = parse(p)
-					lhsRecurse = formHypothesisSet(p)
-					if hypoRecurse(lhsRecurse) == 1:
-						lhsnew.append(p)
-					else:
-						print("Invalid theorem added by user!")
-				"""
+					if level == 0:
+						print("I need a hint!")
+						print("Enter type of axiom/theorem (without quotes): ")
+						print("'1' for axiom 1")
+						print("'2' for axiom 2")
+						print("'3' for axiom 3")
+						print("'4' for contrapositve")
+						print("'5' for any other theorem")
+						t = int(input())
+						if t == 1:
+							p = parse(input())
+							q = parse(input())
+							print("Added theorem 1:" ,theorem1(p,q))
+							lhsnew.append(theorem1(p,q))
+						if t == 2:
+							p = parse(input())
+							q = parse(input())
+							r = parse(input())
+							print("Added theorem 2:" ,theorem2(p,q,r))
+							lhsnew.append(theorem2(p,q,r))
+						if t == 3:
+							p = parse(input())
+							print("Added theorem 3:" ,theorem3(p))
+							lhsnew.append(theorem3(p))
+						if t == 4:
+							p = parse(input())
+							q = parse(input())
+							print("Added contrapositive statement:" , contrapositve(p,q))
+							lhsnew.append(contrapositve(p,q))
+						if t == 5:
+							p = parse(input())
+							print("Proving theorem:" ,p)
+							p = parse(p)
+							lhsRecurse = formHypothesisSet(p)
+							if hypoRecurse(lhsRecurse, 0) == 1:
+								lhsnew.append(p)
+							else:
+								print("Invalid theorem added by user!")
+				
+					else:	
+						print("False Returned")
+						return Found
+				
+				
 			else:
 				print("Modified by modus-ponens!")
 				print(lhsnew)
@@ -217,5 +228,5 @@ def hypoRecurse(lhs):	# lhs is set of hypothesis
 	return 0
 
 e = parse(input())
-hypoRecurse(formHypothesisSet(e))
+hypoRecurse(formHypothesisSet(e), 0)
 
