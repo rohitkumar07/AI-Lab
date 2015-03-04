@@ -1,0 +1,3 @@
+implemented basic gates like or,and,not (circuit -independent) in general.pl
+
+Remaining elements like xor,full-adder,verify in xor.pl

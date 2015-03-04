@@ -123,8 +123,8 @@ int heuristic_distance(int current[][3],int goal[][3]){
 	//return 0;
 
 	//return manhattan_distance(current, goal) ;
-	return  manhattan_distance(current, goal) + linear_conflict(current, goal);;
-	//return displaced_tiles(current,goal);
+	//return  manhattan_distance(current, goal) + linear_conflict(current, goal);;
+	return displaced_tiles(current,goal);
 }
 
 void giveAdjacencyList(node* &current,vector<node*> &adj, node* &goal){
@@ -315,14 +315,13 @@ int aStar(node* &start, node* &goal){
 
 
 int main(){
-	int mat[3][3] = {	{4,1,2},
-						{0,8,7},
-						{6,3,5}};
-	//print_matrix(mat);
-	
+	int mat[3][3] = {	{5,6,7},
+						{4,8,0},
+						{3,2,1}};
+
 	int mat1[3][3] = {	{1,2,3},
-						{4,5,6},
-						{7,8,0}};
+						{8,4,0},
+						{7,6,5}};
 	//cout << manhattan_distance(mat, mat1);
 	
 /*
