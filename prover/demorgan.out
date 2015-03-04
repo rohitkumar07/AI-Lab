@@ -1,0 +1,13 @@
+Parsed form:  ((p>(q>F))>F)>((p>F)>q)
+
+Initial Hypothesis set:  ['(p>(q>F))>F', 'p>F', 'q>F']
+
+Initial Hypothesis set:  ['p', 'p>F', 'q', 'q>F']
+Modified by modus-ponens!
+['F', 'p', 'p>F', 'q', 'q>F']
+['p', 'p>F', 'q', 'q>F']
+Found!
+ 1
+New hypothesis set:  ['F', 'q>F', 'p>F', 'p>(q>F)']
+Found!
+ 1
