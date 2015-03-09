@@ -91,8 +91,7 @@ def convertOr(s):
 	i = s.find("v")
 	openparanthesis = 0
 	closedparanthesis = 0
-	a = ""
-	b = ""
+
 	l = i - 1
 	r = i + 1
 
@@ -127,8 +126,7 @@ def convertAnd(s):
 	i = s.find("^")
 	openparanthesis = 0
 	closedparanthesis = 0
-	a = ""
-	b = ""
+
 	l = i - 1
 	r = i + 1
 
@@ -233,7 +231,7 @@ def hypoRecurse(lhs):	# lhs is set of hypothesis
 								break
 				if not Found:
 					return Found
-					
+
 			else:
 				print("Modified by modus-ponens!")
 				print(lhs)
