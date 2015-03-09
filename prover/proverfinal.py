@@ -81,7 +81,9 @@ def convertNot(s):
 		if openparanthesis == closedparanthesis :
 			z = s[:i] + "(" + parenthesize(s[i+1:x+1]) + ">F)" + s[x+1:]
 			return convertNot(deParenthesize(z))
-'''
+
+
+
 def convertOr(s):
 	s = deParenthesize(s)
 	if not "v" in s:
@@ -91,21 +93,75 @@ def convertOr(s):
 	closedparanthesis = 0
 	a = ""
 	b = ""
-	for x in range(i+1,len(s)):
-		if s[x] == '(' :
+	l = i - 1
+	r = i + 1
+
+	while 1:
+		if s[l] == '(' :
 			openparanthesis = openparanthesis + 1
-		if s[x] == ')' :
+		if s[l] == ')' :
 			closedparanthesis = closedparanthesis + 1
 		if openparanthesis == closedparanthesis :
-			z = s[:i] + "(" + 
-			after = parenthesize(s[i+1:x+1]) 
-			+ ">F)" + s[x+1:]
-'''
+			break
+		l = l - 1
+
+	while 1:
+		if s[r] == '(' :
+			openparanthesis = openparanthesis + 1
+		if s[r] == ')' :
+			closedparanthesis = closedparanthesis + 1
+		if openparanthesis == closedparanthesis :
+			break
+		r = r + 1
+
+	#  p v q = (p>F)>q
+	s = s[:l] + formImplies(formImplies(s[l:i], "F"), s[i+1:r+1]) + s[r+1:]
+	return convertOr(s)
+
+# print(convertOr("(pvq)>(pvq)"))
+
+def convertAnd(s):
+	s = deParenthesize(s)
+	if not "^" in s:
+		return s
+	i = s.find("^")
+	openparanthesis = 0
+	closedparanthesis = 0
+	a = ""
+	b = ""
+	l = i - 1
+	r = i + 1
+
+	while 1:
+		if s[l] == '(' :
+			openparanthesis = openparanthesis + 1
+		if s[l] == ')' :
+			closedparanthesis = closedparanthesis + 1
+		if openparanthesis == closedparanthesis :
+			break
+		l = l - 1
+
+	while 1:
+		if s[r] == '(' :
+			openparanthesis = openparanthesis + 1
+		if s[r] == ')' :
+			closedparanthesis = closedparanthesis + 1
+		if openparanthesis == closedparanthesis :
+			break
+		r = r + 1
+
+	#  p ^ q = (p>(q>F))>F
+	s = s[:l] + formImplies(formImplies(s[l:i], formImplies(s[i+1:r+1], "F")) , "F")  + s[r+1:]
+	return convertAnd(s)
+
+# print(convertAnd("(p^q)>(p^q)"))
 
 def parse(e):
 	e = e.replace(" ","")	# removing whitespaces
 	e = e.replace("->",">")
 	e = convertNot(e)
+	e = convertOr(e)
+	e = convertAnd(e)
 	print("Parsed form: ", e)
 	return e
 
@@ -142,7 +198,7 @@ def formHypothesisSet(e):
 	return lhs
 
 
-def hypoRecurse(lhs, level):	# lhs is set of hypothesis
+def hypoRecurse(lhs):	# lhs is set of hypothesis
 	lhs = list(set(lhs))
 	lhs.sort()
 	if len(lhs) == 1:
@@ -150,9 +206,9 @@ def hypoRecurse(lhs, level):	# lhs is set of hypothesis
 			return False
 
 	print("\nInitial Hypothesis set: ", lhs)
-	for i in range(0,1000):
+	for i in range(0,10000):
 		if "F" in lhs:
-			print("Found!\n", i)
+			print("Found!", i, "\n")
 			return True
 		else:
 			lhsnew = modusponens(lhs)			
@@ -167,7 +223,7 @@ def hypoRecurse(lhs, level):	# lhs is set of hypothesis
 						x = list(set(x))
 						x.sort()
 						if not x == lhsnew:
-							if hypoRecurse(x, level+1):
+							if hypoRecurse(x):
 								Found = True
 								lhsnew = lhsnew[:j] + lhsnew[j+1:]
 								lhsnew.append(temp[0])
@@ -176,6 +232,8 @@ def hypoRecurse(lhs, level):	# lhs is set of hypothesis
 								print("New hypothesis set: ", lhsnew)
 								break
 				if not Found:
+					return Found
+					"""
 					if level == 0:
 						print("I need a hint!")
 						print("Enter type of axiom/theorem (without quotes): ")
@@ -218,15 +276,18 @@ def hypoRecurse(lhs, level):	# lhs is set of hypothesis
 					else:	
 						print("False Returned")
 						return Found
-				
+					"""
 				
 			else:
 				print("Modified by modus-ponens!")
-				print(lhsnew)
 				print(lhs)
+				print(lhsnew)
 			lhs = lhsnew
 	return 0
 
 e = parse(input())
-hypoRecurse(formHypothesisSet(e), 0)
+if hypoRecurse(formHypothesisSet(e)):
+	print ("Theorem Proved!")
+else :
+	print ("Theorem not correct!")
 
