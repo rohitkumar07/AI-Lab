@@ -233,51 +233,7 @@ def hypoRecurse(lhs):	# lhs is set of hypothesis
 								break
 				if not Found:
 					return Found
-					"""
-					if level == 0:
-						print("I need a hint!")
-						print("Enter type of axiom/theorem (without quotes): ")
-						print("'1' for axiom 1")
-						print("'2' for axiom 2")
-						print("'3' for axiom 3")
-						print("'4' for contrapositve")
-						print("'5' for any other theorem")
-						t = int(input())
-						if t == 1:
-							p = parse(input())
-							q = parse(input())
-							print("Added theorem 1:" ,theorem1(p,q))
-							lhsnew.append(theorem1(p,q))
-						if t == 2:
-							p = parse(input())
-							q = parse(input())
-							r = parse(input())
-							print("Added theorem 2:" ,theorem2(p,q,r))
-							lhsnew.append(theorem2(p,q,r))
-						if t == 3:
-							p = parse(input())
-							print("Added theorem 3:" ,theorem3(p))
-							lhsnew.append(theorem3(p))
-						if t == 4:
-							p = parse(input())
-							q = parse(input())
-							print("Added contrapositive statement:" , contrapositve(p,q))
-							lhsnew.append(contrapositve(p,q))
-						if t == 5:
-							p = parse(input())
-							print("Proving theorem:" ,p)
-							p = parse(p)
-							lhsRecurse = formHypothesisSet(p)
-							if hypoRecurse(lhsRecurse, 0) == 1:
-								lhsnew.append(p)
-							else:
-								print("Invalid theorem added by user!")
-				
-					else:	
-						print("False Returned")
-						return Found
-					"""
-				
+					
 			else:
 				print("Modified by modus-ponens!")
 				print(lhs)
