@@ -1,6 +1,6 @@
 :- [general].
-my_retract(X):-retract(signal(in(_,X),_)),retract(signal(output(X),_)).
-my_fulladder_retract(X):-retract(signal(in(_,X),_)),retract(signal(output1(X),_)),retract(signal(output2(X),_)).
+my_retract(X):-retractall(signal(in(_,X),_)),retract(signal(output(X),_)).
+my_fulladder_retract(X):-retractall(signal(in(_,X),_)),retract(signal(output1(X),_)),retract(signal(output2(X),_)).
 my_xor(X):-my_connect(in(1,X),in(1,a1)),my_connect(in(1,X),in(1,a4)),my_connect(in(2,X),in(1,a2))
 			,my_connect(in(2,X),in(1,a3)),my_not(a1),my_not(a3),my_connect(output(a1),in(2,a2)),
 			my_connect(output(a3),in(2,a4)),my_and(a2),my_and(a4),my_connect(output(a2),in(1,a5)),
@@ -18,9 +18,9 @@ my_fulladder(X):- my_connect(in(1,X),in(1,b1)),my_connect(in(2,X),in(2,b1)),my_x
 
 assign_inputs([],_,_).
 assign_inputs([H|T],G,V) :- assert(signal(in(V,G),H)),V1 is V+1,assign_inputs(T,G,V1).
-verify(G,L,O):- G = and,assign_inputs(L,t1,1),my_and(t1),signal(output(t1),X1),!,my_retract(t1),O is X1.
-verify(G,L,O):- G = or,assign_inputs(L,t2,1),my_or(t2),signal(output(t2),X1),!,my_retract(t2),O is X1.
-verify(G,L,O):- G = xor,assign_inputs(L,t3,1),my_xor(t3),signal(output(t3),X1),!,my_retract(t3),O is X1.
+verify(G,L,O):- G = and,assign_inputs(L,t1,1),my_and(t1),signal(output(t1),X1),my_retract(t1),!,O is X1.
+verify(G,L,O):- G = or,assign_inputs(L,t2,1),my_or(t2),signal(output(t2),X1),my_retract(t2),!,O is X1.
+verify(G,L,O):- G = xor,assign_inputs(L,t3,1),my_xor(t3),signal(output(t3),X1),my_retract(t3),!,O is X1.
 verify(G,L,O):- G = fulladder,assign_inputs(L,t4,1),my_fulladder(t4),
-						signal(output1(t4),X1),signal(output2(t4),X2),!,my_fulladder_retract(t4), O == [X1,X2].
+						signal(output1(t4),X1),signal(output2(t4),X2),my_fulladder_retract(t4),!, O == [X1,X2].
 verify(_,_,_).
