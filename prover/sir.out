@@ -1,31 +1,42 @@
-
 Parsed form:  ((p>q)>((r>s)>t))>((u>((r>s)>t))>((p>u)>(s>t)))
+
 Initial Hypothesis set:  ['(p>q)>((r>s)>t)', 'p>u', 's', 't>F', 'u>((r>s)>t)']
+
 Initial Hypothesis set:  ['p', 'p>u', 'q>F', 's', 't>F', 'u>((r>s)>t)']
 Modified by modus-ponens!
-['p', 'p>u', 'q>F', 's', 't>F', 'u', 'u>((r>s)>t)']
 ['p', 'p>u', 'q>F', 's', 't>F', 'u>((r>s)>t)']
-Modified by modus-ponens!
-['(r>s)>t', 'p', 'p>u', 'q>F', 's', 't>F', 'u', 'u>((r>s)>t)']
 ['p', 'p>u', 'q>F', 's', 't>F', 'u', 'u>((r>s)>t)']
+Modified by modus-ponens!
+['p', 'p>u', 'q>F', 's', 't>F', 'u', 'u>((r>s)>t)']
+['(r>s)>t', 'p', 'p>u', 'q>F', 's', 't>F', 'u', 'u>((r>s)>t)']
+
 Initial Hypothesis set:  ['p', 'p>u', 'q>F', 'r', 's', 's>F', 't>F', 'u', 'u>((r>s)>t)']
 Modified by modus-ponens!
-['(r>s)>t', 'F', 'p', 'p>u', 'q>F', 'r', 's', 's>F', 't>F', 'u', 'u>((r>s)>t)']
 ['p', 'p>u', 'q>F', 'r', 's', 's>F', 't>F', 'u', 'u>((r>s)>t)']
-Found! 1
+['(r>s)>t', 'F', 'p', 'p>u', 'q>F', 'r', 's', 's>F', 't>F', 'u', 'u>((r>s)>t)']
+Found! 1 
+
+New hypothesis set:  ['p', 't>F', 'u', 'p>u', 's', 't', 'q>F', 'u>((r>s)>t)', 'r>s']
 Modified by modus-ponens!
+['p', 't>F', 'u', 'p>u', 's', 't', 'q>F', 'u>((r>s)>t)', 'r>s']
 ['(r>s)>t', 'F', 'p', 'p>u', 'q>F', 'r>s', 's', 't', 't>F', 'u', 'u>((r>s)>t)']
-['p', 'p>u', 'q>F', 's', 't>F', 'u', 'u>((r>s)>t)', 'r>s', 't']
-Found! 4
+Found! 4 
+
+New hypothesis set:  ['t>F', 'p>u', 'p>q', 's', 'u>((r>s)>t)', '(r>s)>t']
 Modified by modus-ponens!
+['t>F', 'p>u', 'p>q', 's', 'u>((r>s)>t)', '(r>s)>t']
 ['(r>s)>t', 'p>q', 'p>u', 's', 't>F', 'u>((r>s)>t)']
-['p>u', 's', 't>F', 'u>((r>s)>t)', 'p>q', '(r>s)>t']
+
 Initial Hypothesis set:  ['p>q', 'p>u', 'r', 's', 's>F', 't>F', 'u>((r>s)>t)']
 Modified by modus-ponens!
-['F', 'p>q', 'p>u', 'r', 's', 's>F', 't>F', 'u>((r>s)>t)']
 ['p>q', 'p>u', 'r', 's', 's>F', 't>F', 'u>((r>s)>t)']
-Found! 1
+['F', 'p>q', 'p>u', 'r', 's', 's>F', 't>F', 'u>((r>s)>t)']
+Found! 1 
+
+New hypothesis set:  ['t>F', 'p>u', 'p>q', 's', 't', 'u>((r>s)>t)', 'r>s']
 Modified by modus-ponens!
+['t>F', 'p>u', 'p>q', 's', 't', 'u>((r>s)>t)', 'r>s']
 ['F', 'p>q', 'p>u', 'r>s', 's', 't', 't>F', 'u>((r>s)>t)']
-['p>q', 'p>u', 's', 't>F', 'u>((r>s)>t)', 'r>s', 't']
-Found! 4
+Found! 4 
+
+Theorem Proved!
