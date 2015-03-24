@@ -13,14 +13,19 @@ using namespace std;
 #define VS vector<string> 
 #define VVS vector<VS > 
 
+// Print Macros
+
+#define PRINTTRANS 1
+#define PRINTOBS 0
+
 //--------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------
 
 
-vector<string> split_space(string s){
-	vector<string> ans;
+VS split_space(string s){
+	VS ans;
 	int index = 0;
 	s = s + " ";
 	while(s[index] == ' ') index++;
@@ -73,7 +78,7 @@ int transitionCount[STATES][STATES];				// s[i] to s[j] on any symbol
 int observationCount[STATES][OBSERVATIONS];			// s[i] to any state on symbol obs[j]
 int totalCount[STATES];								// s[i] to any state on any symbol
 
-int leftIndex = 0;
+int leftIndex = 0;									// to perform cross validation
 string PHONEMES[STATES];
 // S0 corresponds to phoneme ""(epsilon)
 
@@ -111,6 +116,8 @@ void buildOccurenceProbabilities()
 		}
 	}
 
+	
+
 	rep(i, STATES){
 		rep(j, OBSERVATIONS){
 			int sum = 0;
@@ -131,6 +138,18 @@ void buildOccurenceProbabilities()
 		// debug3(i, PHONEMES[i], totalCount[i]);
 	}
 
+	if (PRINTTRANS){
+		printf("\nPrinting Transition Table\n");
+		rep(i, 70) cout << PHONEMES[i+1] << "\t\t\t";
+		cout << endl;
+		rep(i, 70) {rep(j, 70) cout << fixed << setprecision(4) << double(transitionCount[i+1][j+1])/double(totalCount[i+1]) << "\t\t"; cout << "\n";}
+	}
+
+	if (PRINTOBS){
+		printf("Printing Observation Table\n");
+		rep(i, 2) cout << "" << "\t";
+		rep(i, 75) {rep(j, 30) cout << double(observationCount[i][j])/double(totalCount[i]) << "\t"; cout << "\n";}	
+	}
 }
 
 //--------------------------------------------------------------------------------------------------------
@@ -155,7 +174,7 @@ int main()
 	//--------------------------------------------------------------------------------------------------------
 	//--------------------------------------------------------------------------------------------------------
 	//--------------------------------------------------------------------------------------------------------
-	// Reading data
+	// Process input data
 	while(getline(file,line)){
 		
 		graphemes = split_space(line);
@@ -211,13 +230,13 @@ int main()
 
 			int totalStates = phonemeOccurenceMap.size();
 
-			// Not needed below loop
-			for (int i = 1; i <= totalStates; i++){
-				SEQSCORE[i][0] = 0.0;
-			}
+			// Not needed loop :
+			// for (int i = 1; i <= totalStates; i++){
+			// 	SEQSCORE[i][0] = 0.0;
+			// }
 
 			//--------------------------------------------------------------------------------------------------------
-			// DP
+			// DP : Viterbi Algorithm
 
 			int observationLength = input.size();
 			for (int observationNum = 1; observationNum <= observationLength; observationNum++){
@@ -272,7 +291,7 @@ int main()
 	}
 	
 	double fracSum = 0;
-	rep(i,5)fracSum += match[i];
+	rep(i,5) fracSum += match[i];
 	cout << "\nAverage Matched Percentage : " << (fracSum/5.0)*100.0 << endl;
 
 }
