@@ -73,6 +73,7 @@ int transitionCount[STATES][STATES];				// s[i] to s[j] on any symbol
 int observationCount[STATES][OBSERVATIONS];			// s[i] to any state on symbol obs[j]
 int totalCount[STATES];								// s[i] to any state on any symbol
 
+int leftIndex = 0;
 string PHONEMES[STATES];
 // S0 corresponds to phoneme ""(epsilon)
 
@@ -82,6 +83,7 @@ void buildOccurenceProbabilities()
 
 	// Building starts
 	for (int i = 0; i < data.size(); i++){
+		if (i%5 == leftIndex) continue;
 		string OBS = data[i][0];
 		itr1 = phonemeOccurenceMap.find(data[i][1]);
 
@@ -185,7 +187,7 @@ int main()
 		}
 	}
 
-	debug2(data.size(), phonemeOccurenceMap.size());
+	// debug2(data.size(), phonemeOccurenceMap.size());
 
 	// Reading data done
 	//--------------------------------------------------------------------------------------------------------
@@ -194,64 +196,83 @@ int main()
 	//--------------------------------------------------------------------------------------------------------
 	// Building SEQSCORE dynamically
 
-	buildOccurenceProbabilities();
+	double match[5];
+	for (leftIndex = 0; leftIndex < 5; leftIndex++){
 
-	while(1){
-		string input;
-		cin >> input;
+		buildOccurenceProbabilities();
 
-		SEQSCORE[0][0] = 1.0;	// epsilon on state 0
-		BACKPTR[0][0] = 0;	// epsilon on state 0
+		int res = 0, total = 0;
+		for (int dataLine = leftIndex; dataLine < data.size(); dataLine += 5){
+			string input = data[dataLine][0];
+			// cin >> input;
 
-		int totalStates = phonemeOccurenceMap.size();
+			SEQSCORE[0][0] = 1.0;	// epsilon on state 0
+			BACKPTR[0][0] = 0;	// epsilon on state 0
 
-		// Not needed below loop
-		for (int i = 1; i <= totalStates; i++){
-			SEQSCORE[i][0] = 0.0;
-		}
+			int totalStates = phonemeOccurenceMap.size();
 
-		//--------------------------------------------------------------------------------------------------------
-		// DP
+			// Not needed below loop
+			for (int i = 1; i <= totalStates; i++){
+				SEQSCORE[i][0] = 0.0;
+			}
 
-		int observationLength = input.size();
-		for (int observationNum = 1; observationNum <= observationLength; observationNum++){
-			for (int state = 0; state <= totalStates; state++){
-				int maxState = 0;
-				double maxVal = 0;
-				for (int j = 0; j <= totalStates; j++){
-					if (SEQSCORE[j][observationNum - 1]*occurenceCount[j][state][int(input[observationNum - 1] - 'A')] > maxVal){
-						maxVal = SEQSCORE[j][observationNum - 1]*occurenceCount[j][state][int(input[observationNum - 1] - 'A')];
-						maxState = j;
+			//--------------------------------------------------------------------------------------------------------
+			// DP
+
+			int observationLength = input.size();
+			for (int observationNum = 1; observationNum <= observationLength; observationNum++){
+				for (int state = 0; state <= totalStates; state++){
+					int maxState = 0;
+					double maxVal = 0;
+					for (int j = 0; j <= totalStates; j++){
+						if (SEQSCORE[j][observationNum - 1]*occurenceCount[j][state][int(input[observationNum - 1] - 'A')] > maxVal){
+							maxVal = SEQSCORE[j][observationNum - 1]*occurenceCount[j][state][int(input[observationNum - 1] - 'A')];
+							maxState = j;
+						}
 					}
+					SEQSCORE[state][observationNum] = maxVal;
+					BACKPTR[state][observationNum] = maxState;
 				}
-				SEQSCORE[state][observationNum] = maxVal;
-				BACKPTR[state][observationNum] = maxState;
 			}
-		}
 
-		//--------------------------------------------------------------------------------------------------------
+			//--------------------------------------------------------------------------------------------------------
 
-		int indexThatMaximizes = 0;
-		double maxValue = 0;
-		for (int i = 0; i <= totalStates; i++){
-			if (maxValue < SEQSCORE[i][observationLength]){
-				indexThatMaximizes = i;
-				maxValue = SEQSCORE[i][observationLength];
+			int indexThatMaximizes = 0;
+			double maxValue = 0;
+			for (int i = 0; i <= totalStates; i++){
+				if (maxValue < SEQSCORE[i][observationLength]){
+					indexThatMaximizes = i;
+					maxValue = SEQSCORE[i][observationLength];
+				}
 			}
-		}
 
-		debug2(indexThatMaximizes, PHONEMES[indexThatMaximizes]);
+			// debug2(indexThatMaximizes, PHONEMES[indexThatMaximizes]);
 
-		//--------------------------------------------------------------------------------------------------------
-		stack<int> answer;
-		answer.push(indexThatMaximizes);
-		for (int i = observationLength - 1; i > 0; i--){
-			indexThatMaximizes = BACKPTR[indexThatMaximizes][i+1];
+			//--------------------------------------------------------------------------------------------------------
+			stack<int> answer;
 			answer.push(indexThatMaximizes);
+			for (int i = observationLength - 1; i > 0; i--){
+				indexThatMaximizes = BACKPTR[indexThatMaximizes][i+1];
+				answer.push(indexThatMaximizes);
+			}
+			
+			for (int k = 1; k < data[dataLine].size(); k++){
+				if (data[dataLine][k] == PHONEMES[answer.top()]) res++;
+				total++;
+				answer.pop();
+			}
+			
+			// while(!answer.empty()){
+			// 	cout << PHONEMES[answer.top()] <<  " ";
+			// 	answer.pop();
+			// }
 		}
-		while(!answer.empty()){
-			cout << answer.top();
-			answer.pop();	
-		}
+		match[leftIndex] = double(res)/double(total);
+		cout << "Fraction matched for iteration " << leftIndex << " : " << match[leftIndex] << endl;
 	}
+	
+	double fracSum = 0;
+	rep(i,5)fracSum += match[i];
+	cout << "\nAverage Matched Percentage : " << (fracSum/5.0)*100.0 << endl;
+
 }

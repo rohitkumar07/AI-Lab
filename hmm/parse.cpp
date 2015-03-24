@@ -221,7 +221,7 @@ int main(){
 	// for (int i = 0; i < op.size(); i++)
 	// 	op[i].print(inverse_map);	
 
-	int cnt = 0;
+	int cnt = 0, sat = 0;
 	for (int ind  = 0; ind < unseen.size(); ind++)
 	{
 		string input = unseen[ind];
@@ -270,16 +270,18 @@ int main(){
 			//cout << "max_num" << max_num << endl;
 			//cout << "Answer" << endl;
 		// cout << "With the probability of "<< states[max_num]
-		int sat = true;
+		// int sat = true;
 		for(int i=0; i< states[max_num].sequence.size();i++){
 			// cout << inverse_map[states[max_num].sequence[i]].phoneme << ' ';
 			if (unseenData[ind][i+1] != inverse_map[states[max_num].sequence[i]].phoneme)
-				sat = false;
+				// sat = false;
+				sat++;
+			cnt++;
 		} 
 		// cout<<endl;
-		if (!sat) cnt++;
+		// if (sat) cnt++;
 	}
-	cout <<"Matching data" << double(cnt)/double(unseenData.size()) << endl;
+	cout <<"Matching data" << double(sat)/double(cnt) << endl;
 	//op[0].print(inverse_map);
 	
 
