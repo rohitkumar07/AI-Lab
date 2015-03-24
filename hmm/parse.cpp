@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+// #include <bits/stdc>
 #include <set>
 using namespace std;
 vector<string> split_space(string s){
@@ -28,10 +29,13 @@ vector<string> split_space(string s){
 }
 
 void remove_extra(string& s){
-	if(s[s.size()-1]==')'){
-		s = s.substr(0,s.size()-3);
-		}
+	string res = "";
+	for (int i = 0; i < s.size(); i++){
+		if (s[i] >= 'A' and s[i] <= 'Z')
+			res = res + s[i];
 	}
+	s = res;
+}
 	
 struct pai{
 	int line_no;
@@ -57,7 +61,9 @@ struct onephonemes
 	string phoneme;
 	int sum[26];
 	int v[26][100];
-	onephonemes(vector<phoneme_list> &vec ,vector<vector<string> > &data,string phoneme){
+	int totalsum;
+	onephonemes(vector<phoneme_list> &vec ,vector<vector<string> > &data,string pho){
+		phoneme = pho;
 		for (int i = 0; i < 26; ++i)
 		{	
 			for (int j = 0; j < 100; ++j)
@@ -91,11 +97,13 @@ struct onephonemes
 	}
 	
 	void calculate_sum(){
+		totalsum = 0;
 		for(int i=0;i<26;i++){
 			sum[i] = 0;
 			for(int j=0;j<100;j++){
 				sum[i] += v[i][j];
 				}
+			totalsum+=sum[i];
 			}
 		}
 	
@@ -125,13 +133,15 @@ struct onephonemes
 	}
 	
 	void print(vector<phoneme_list> &vec){
+		cout << "Initial State: " << phoneme << endl;
 		for (int i = 0; i < vec.size(); ++i)
 		{	cout<<endl;
-			cout<<'A'+i<<":\n";
+			cout<<char('A'+i)<<":\n";
+
 			for (int j = 0; j < 100; ++j)
 			{
 				if(j<vec.size()){
-					cout<<vec[j].phoneme<<": "<<v[i][j]<<endl;
+					cout<<vec[j].phoneme<<": "<<v[i][j]/ double(totalsum)<<endl;
 				}
 				else continue;
 			}
@@ -141,6 +151,11 @@ struct onephonemes
 };
 
 int main(){
+
+	vector<string> unseen;
+	vector<vector<string> > unseenData;
+	int take = 0;
+
 	vector<vector<string> > data;
 	vector<string> graphemes;
 	set<string> phonemes;
@@ -158,6 +173,13 @@ int main(){
 			continue;
 		}
 		else{
+			take++;
+
+			if (take %5 == 0) {
+				unseen.push_back(graphemes[0]);
+				unseenData.push_back(graphemes);
+				continue;
+			}
 			data.push_back(graphemes);
 			for(int i =1;i<graphemes.size();i++){
 				bool found = false;
@@ -178,63 +200,88 @@ int main(){
 			}
 		}
 	}
+
+	// set<string> :: iterator itr = phonemes.begin();
+	// while(itr != phonemes.end()){
+	// 	cout << *itr << " ";
+	// 	itr++;
+	// }
+	// cout << endl;
+
 	cout<<data.size()<<"::"<<phonemes.size()<<endl;
+
+
 	vector<onephonemes> op;
 	onephonemes op_epsilon =  onephonemes(inverse_map,data);
 	for(int i=0;i<inverse_map.size();i++){
 		op.push_back(onephonemes(inverse_map,data,inverse_map[i].phoneme));
 		}
 	op.push_back(op_epsilon);
-	string input;
-	cin>>input;
-	int n = inverse_map.size();
-	datstr states[n];
-	for(int i =0;i<n;i++){
-		states[i].prob = (float)op_epsilon.v[input[0]-'A'][i]/(float)op_epsilon.sum[input[0]-'A'];
-		states[i].sequence.push_back(i);
-	}
-	for(int i=1;i<input.size();i++){
-		
-		char x = input[i];
-		datstr temp[n];
-	for(int i=0;i<n;i++){
-		float max;
-		int maxnum;
-		if(op[0].sum[x-'A'] == 0) {
-			max = 0;
+
+	// for (int i = 0; i < op.size(); i++)
+	// 	op[i].print(inverse_map);	
+
+	int cnt = 0;
+	for (int ind  = 0; ind < unseen.size(); ind++)
+	{
+		string input = unseen[ind];
+		int n = inverse_map.size();
+		datstr states[n];
+		for(int i =0;i<n;i++){
+			states[i].prob = (float)op_epsilon.v[input[0]-'A'][i]/(float)op_epsilon.totalsum;
+			states[i].sequence.push_back(i);
 		}
-		else max = (states[0].prob)*((float)op[0].v[x-'A'][i]/op[0].sum[x-'A']);
-		//cout << max << ' ' << 0 << ' ' << i << endl;
-		maxnum = 0;
-		for(int j = 1;j<n;j++){
-			if(op[j].sum[x-'A'] == 0) continue;//cout << "ayyo";
-			float t = (states[j].prob)*(op[j].v[x-'A'][i]/(float)op[j].sum[x-'A']);
-			//cout << t << ' ' << j << ' ' << i << endl;
-			if(max < t){
-				max = t;
-				maxnum = j;
+		for(int i=1;i<input.size();i++){
+			
+			char x = input[i];
+			datstr temp[n];
+		for(int i=0;i<n;i++){
+			float max;
+			int maxnum;
+			if(op[0].sum[x-'A'] == 0) {
+				max = 0;
 			}
+			else max = (states[0].prob)*((float)op[0].v[x-'A'][i]/op[0].totalsum);
+			//cout << max << ' ' << 0 << ' ' << i << endl;
+			maxnum = 0;
+			for(int j = 1;j<n;j++){
+				if(op[j].sum[x-'A'] == 0) continue;//cout << "ayyo";
+				float t = (states[j].prob)*(op[j].v[x-'A'][i]/(float)op[j].totalsum);
+				//cout << t << ' ' << j << ' ' << i << endl;
+				if(max < t){
+					max = t;
+					maxnum = j;
+				}
+			}
+			temp[i].sequence = states[maxnum].sequence;
+			//cout << maxnum << endl;
+			temp[i].sequence.push_back(i); 
+			temp[i].prob = max;
 		}
-		temp[i].sequence = states[maxnum].sequence;
-		//cout << maxnum << endl;
-		temp[i].sequence.push_back(i); 
-		temp[i].prob = max;
+		for(int i=0;i<n;i++){
+			states[i].prob = temp[i].prob ;
+			states[i].sequence = temp[i].sequence;
+		}
+			}
+			int max_num = 0;
+			for(int i=1;i<n;i++){
+				if(states[i].prob > states[max_num].prob) max_num = i;
+			}
+			//cout << "max_num" << max_num << endl;
+			//cout << "Answer" << endl;
+		// cout << "With the probability of "<< states[max_num]
+		int sat = true;
+		for(int i=0; i< states[max_num].sequence.size();i++){
+			// cout << inverse_map[states[max_num].sequence[i]].phoneme << ' ';
+			if (unseenData[ind][i+1] != inverse_map[states[max_num].sequence[i]].phoneme)
+				sat = false;
+		} 
+		// cout<<endl;
+		if (!sat) cnt++;
 	}
-	for(int i=0;i<n;i++){
-		states[i].prob = temp[i].prob ;
-		states[i].sequence = temp[i].sequence;
-	}
-		}
-		int max_num = 0;
-		for(int i=1;i<n;i++){
-			if(states[i].prob > states[max_num].prob) max_num = i;
-		}
-		//cout << "max_num" << max_num << endl;
-		//cout << "Answer" << endl;
-	for(int i=0;i<states[max_num].sequence.size();i++){
-		cout << inverse_map[states[max_num].sequence[i]].phoneme << ' ';
-	} 
-	cout<<endl;
+	cout <<"Matching data" << double(cnt)/double(unseenData.size()) << endl;
 	//op[0].print(inverse_map);
+	
+
 
 }
