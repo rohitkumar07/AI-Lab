@@ -15,8 +15,8 @@ using namespace std;
 
 // Print Macros
 
-#define PRINTTRANS 1
-#define PRINTOBS 0
+#define PRINTTRANS 0
+#define PRINTOBS 1
 
 //--------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------
@@ -139,16 +139,22 @@ void buildOccurenceProbabilities()
 	}
 
 	if (PRINTTRANS){
-		printf("\nPrinting Transition Table\n");
+		printf("\nPrinting Transition Table :: \n");
 		rep(i, 70) cout << PHONEMES[i+1] << "\t\t\t";
 		cout << endl;
 		rep(i, 70) {rep(j, 70) cout << fixed << setprecision(4) << double(transitionCount[i+1][j+1])/double(totalCount[i+1]) << "\t\t"; cout << "\n";}
 	}
 
 	if (PRINTOBS){
-		printf("Printing Observation Table\n");
-		rep(i, 2) cout << "" << "\t";
-		rep(i, 75) {rep(j, 30) cout << double(observationCount[i][j])/double(totalCount[i]) << "\t"; cout << "\n";}	
+		printf("\nPrinting Observation Table ::\n");
+		cout << "\t\t\t";
+		rep(i, 26) cout << char(i + 'A') << "\t\t\t";
+		cout << endl;
+		rep(i, 70) {
+			cout << PHONEMES[i+1] << "\t\t";
+			rep(j, 26) cout << fixed << setprecision(4) << double(observationCount[i+1][j])/double(totalCount[i+1]) << "\t\t"; 
+			cout << "\n";
+		}	
 	}
 }
 
