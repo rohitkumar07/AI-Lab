@@ -301,10 +301,6 @@ int main()
 				}
 			}
 			
-			// while(!answer.empty()){
-			// 	cout << PHONEMES[answer.top()] <<  " ";
-			// 	answer.pop();
-			// }
 		}
 		match[leftIndex] = double(res)/double(total);
 		cout << "Fraction matched for iteration " << leftIndex << " : " << match[leftIndex] << endl;

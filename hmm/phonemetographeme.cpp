@@ -13,6 +13,13 @@ using namespace std;
 #define VS vector<string> 
 #define VVS vector<VS > 
 
+// Print Macros
+
+#define PRINTTRANS 0
+#define PRINTOBS 0
+
+#define USERINPUT 0
+
 //--------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------
@@ -76,63 +83,92 @@ int transitionCount[STATES][STATES];				// s[i] to s[j] on any symbol
 int observationCount[STATES][OBSERVATIONS];			// s[i] to any state on symbol obs[j]
 int totalCount[STATES];								// s[i] to any state on any symbol
 
-char PHONEMES[STATES];
+int leftIndex = 0;									// to perform cross validation
+string PHONEMES[OBSERVATIONS];
 // S0 corresponds to phoneme ""(epsilon)
 
 void buildOccurenceProbabilities()
 {
-	map<string, pair<int, vector<pho-nemeOccurence> > > :: iterator itr1, itr2;	
 
 	// Building starts
-	for (int i = 0; i < data.size(); i++){
-		string OBS = data[i][0];
-		phonemeOccurenceMap[int(data[i][0][0] - 'A') + 1]
+	for (int i = 0; i < data.size(); i++)
+	{
+		if(!USERINPUT) if (i%5 == leftIndex) continue;
 
-		occurenceCount[0][(itr1->second).first][int(OBS[0] - 'A')]++;
+		phonemeItr = phonemeHashMap.find(data[i][1]);
+		if (phonemeItr == phonemeHashMap.end()) {cerr << "Exception\n"; return;}
 
-		for (int j = 1; j < data[i].size() - 1; j++){
-			itr1 = phonemeOccurenceMap.find(data[i][j]);
-			itr2 = phonemeOccurenceMap.find(data[i][j+1]);
-			if (itr1 == phonemeOccurenceMap.end() || itr2 == phonemeOccurenceMap.end()) {
-				cerr << "Phoneme not found exception\n";
-				return;
-			}
-			occurenceCount[(itr1->second).first][(itr2->second).first][int(OBS[j] - 'A')]++;
+		occurenceCount[0][int(data[i][0][0] - 'A') + 1][phonemeItr->second]++;	// count from start state
+
+		for (int j = 1; j < data[i].size() - 1; j++)
+		{	
+			phonemeItr = phonemeHashMap.find(data[i][j+1]);
+			if (phonemeItr == phonemeHashMap.end()) {cerr << "Exception\n"; return;}
+
+			occurenceCount[int(data[i][0][j-1] - 'A') + 1][int(data[i][0][j] - 'A') + 1][phonemeItr->second]++;
 		}
 	}
 	// Building done
 
-	// rep(i, STATES){
-	// 	rep(j, STATES){
-	// 		int sum = 0;
-	// 		rep(k, OBSERVATIONS){
-	// 			sum += occurenceCount[i][j][k];
-	// 		}
-	// 		transitionCount[i][j] = sum;
-	// 	}
-	// }
+	rep(i, STATES){
+		rep(j, STATES){
+			int sum = 0;
+			rep(k, OBSERVATIONS){
+				sum += occurenceCount[i][j][k];
+			}
+			transitionCount[i][j] = sum;
+		}
+	}
 
-	// rep(i, STATES){
-	// 	rep(j, OBSERVATIONS){
-	// 		int sum = 0;
-	// 		rep(k, STATES){
-	// 			sum += occurenceCount[i][k][j];
-	// 		}
-	// 		observationCount[i][j] = sum;
-	// 	}
-	// }
+	
+
+	rep(i, STATES){
+		rep(j, OBSERVATIONS){
+			int sum = 0;
+			rep(k, STATES){
+				sum += occurenceCount[i][k][j];
+			}
+			observationCount[i][j] = sum;
+		}
+	}
 
 
-	// rep(i, STATES){
-	// 	int sum = 0;
-	// 	rep(j, STATES){
-	// 		sum += transitionCount[i][j];
-	// 	}
-	// 	totalCount[i] = sum;
-	// 	// debug3(i, PHONEMES[i], totalCount[i]);
-	// }
+	rep(i, STATES){
+		int sum = 0;
+		rep(j, STATES){
+			sum += transitionCount[i][j];
+		}
+		totalCount[i] = sum;
+		// debug3(i, char(i + 'A' - 1), totalCount[i]);
+	}
+	
+	if (PRINTTRANS){
+		printf("\nPrinting Transition Table :: \n");
+		cout << "\t\t\t";
+		rep(i, 26) cout << char(i + 'A') << "\t\t\t";
+		cout << endl;
+		rep(i, 26) {
+			cout << char(i + 'A') << "\t\t";
+			rep(j, 26) cout << fixed << setprecision(4) << double(transitionCount[i+1][j+1])/*/double(totalCount[i+1])*/<< "\t\t"; 
+			cout << "\n";
+		}
+	}
 
+	
+	if (PRINTOBS){
+		printf("\nPrinting Observation Table ::\n");
+		cout << "\t\t";
+		rep(i, 70) cout << PHONEMES[i] << "\t\t\t";
+		cout << endl;
+		rep(i, 26) {
+			cout << char(i + 'A') << "\t\t";
+			++phonemeItr;
+			rep(j, 70) cout << fixed << setprecision(4) << double(observationCount[i+1][j])/double(totalCount[i+1]) << "\t\t"; 
+			cout << "\n";
+		}	
+	}
 }
+
 
 //--------------------------------------------------------------------------------------------------------
 
@@ -167,8 +203,6 @@ int main()
 		++lineNum;
 		data.push_back(graphemes);
 
-		// for (int i = 0; i < graphemes.size(); i++) cout << graphemes[i] << " ";
-		// cout << "\n";
 
 		for(int state = 0; state < graphemes[0].size(); state++){
 
@@ -178,21 +212,13 @@ int main()
 
 			if (phonemeItr == phonemeHashMap.end()){
 				phonemeHashMap.insert(map<string, int> :: value_type(graphemes[state + 1], phonemeId));
+				PHONEMES[phonemeId] = graphemes[state + 1];
 				++phonemeId;
 			}
-			// 	PHONEMES[phonemeId] = graphemes[state];
-			// 	vector<phonemeOccurence> newOccurenceVector;
-			// 	newOccurenceVector.push_back(phonemeOccurence(lineNum - 1, state));
-			// 	phonemeOccurenceMap.insert(map<string, pair<int, vector<phonemeOccurence> > > :: value_type(graphemes[state], make_pair(phonemeId, newOccurenceVector)));
-			// }
-
-			// else{
-			// 	(phonemeItr->second).second.push_back(phonemeOccurence(lineNum - 1, state));
-			// }
 		}
 	}
 
-	debug2(data.size(), phonemeHashMap.size());// phonemeOccurenceMap.size());
+	// debug2(data.size(), phonemeHashMap.size());// phonemeOccurenceMap.size());
 
 	// Reading data done
 	//--------------------------------------------------------------------------------------------------------
@@ -202,73 +228,102 @@ int main()
 	// Building SEQSCORE dynamically
 
 	// buildOccurenceProbabilities();
-/*
-	int res = 0, total = 0;
-	for (int dataLine = 0; dataLine < data.size(); dataLine += 5){
-		string input = data[dataLine][0];
-		// cin >> input;
 
-		SEQSCORE[0][0] = 1.0;	// epsilon on state 0
-		BACKPTR[0][0] = 0;	// epsilon on state 0
+	double match[5];
+	for (leftIndex = 0; leftIndex < 5; leftIndex++){
 
-		int totalStates = phonemeOccurenceMap.size();
+		buildOccurenceProbabilities();
 
-		// Not needed below loop
-		for (int i = 1; i <= totalStates; i++){
-			SEQSCORE[i][0] = 0.0;
-		}
+		int res = 0, total = 0;
+		for (int dataLine = leftIndex; dataLine < data.size(); dataLine += 5){
+			VS input;
 
-		//--------------------------------------------------------------------------------------------------------
-		// DP
+			if (USERINPUT){
+				string inputLine;
+				getline(cin, inputLine);
+				input = split_space(inputLine);
+			} else{
+				input = data[dataLine];// + 1, data[dataLine] + data[dataLine].size());
+				input.erase(input.begin());
+			}
 
-		int observationLength = input.size();
-		for (int observationNum = 1; observationNum <= observationLength; observationNum++){
-			for (int state = 0; state <= totalStates; state++){
-				int maxState = 0;
-				double maxVal = 0;
-				for (int j = 0; j <= totalStates; j++){
-					if (SEQSCORE[j][observationNum - 1]*occurenceCount[j][state][int(input[observationNum - 1] - 'A')] > maxVal){
-						maxVal = SEQSCORE[j][observationNum - 1]*occurenceCount[j][state][int(input[observationNum - 1] - 'A')];
-						maxState = j;
+			SEQSCORE[0][0] = 1.0;	// epsilon on state 0
+			BACKPTR[0][0] = 0;	// epsilon on state 0
+
+			int totalStates = 26;
+
+			// Not needed loop :
+			// for (int i = 1; i <= totalStates; i++){
+			// 	SEQSCORE[i][0] = 0.0;
+			// }
+
+			//--------------------------------------------------------------------------------------------------------
+			// DP : Viterbi Algorithm
+
+			int observationLength = input.size();
+			for (int observationNum = 1; observationNum <= observationLength; observationNum++){
+				for (int state = 0; state <= totalStates; state++){
+					int maxState = 0;
+					double maxVal = 0;
+					for (int j = 0; j <= totalStates; j++){
+						phonemeItr = phonemeHashMap.find(input[observationNum - 1]);
+						if (phonemeItr == phonemeHashMap.end()){
+							cerr << "Phoneme : " << input[observationNum - 1] << " not found in data\n";
+							return 0;
+						}
+						if (SEQSCORE[j][observationNum - 1]*occurenceCount[j][state][phonemeItr->second] > maxVal){
+							maxVal = SEQSCORE[j][observationNum - 1]*occurenceCount[j][state][phonemeItr->second];
+							maxState = j;
+						}
 					}
+					SEQSCORE[state][observationNum] = maxVal;
+					BACKPTR[state][observationNum] = maxState;
 				}
-				SEQSCORE[state][observationNum] = maxVal;
-				BACKPTR[state][observationNum] = maxState;
 			}
-		}
 
-		//--------------------------------------------------------------------------------------------------------
+			//--------------------------------------------------------------------------------------------------------
 
-		int indexThatMaximizes = 0;
-		double maxValue = 0;
-		for (int i = 0; i <= totalStates; i++){
-			if (maxValue < SEQSCORE[i][observationLength]){
-				indexThatMaximizes = i;
-				maxValue = SEQSCORE[i][observationLength];
+			int indexThatMaximizes = 0;
+			double maxValue = 0;
+			for (int i = 0; i <= totalStates; i++){
+				if (maxValue < SEQSCORE[i][observationLength]){
+					indexThatMaximizes = i;
+					maxValue = SEQSCORE[i][observationLength];
+				}
 			}
-		}
 
-		// debug2(indexThatMaximizes, PHONEMES[indexThatMaximizes]);
+			// debug2(indexThatMaximizes, char(indexThatMaximizes + 'A'));
 
-		//--------------------------------------------------------------------------------------------------------
-		stack<int> answer;
-		answer.push(indexThatMaximizes);
-		for (int i = observationLength - 1; i > 0; i--){
-			indexThatMaximizes = BACKPTR[indexThatMaximizes][i+1];
+			// //--------------------------------------------------------------------------------------------------------
+			stack<int> answer;
 			answer.push(indexThatMaximizes);
+			for (int i = observationLength - 1; i > 0; i--){
+				indexThatMaximizes = BACKPTR[indexThatMaximizes][i+1];
+				answer.push(indexThatMaximizes);
+			}
+
+			if (USERINPUT){
+				while(!answer.empty()){
+					cout << char(answer.top() + 'A' - 1);
+					// cout << answer.top() - 1 << endl;
+ 					answer.pop();
+				}
+				cout << endl;
+			} else{
+				for (int k = 0; k < data[dataLine][0].size(); k++){
+					if (data[dataLine][0][k] == char(answer.top() + 'A' - 1)) res++;
+					total++;
+					answer.pop();
+				}
+			}
 		}
 
-		for (int k = 1; k < data[dataLine].size(); k++){
-			if (data[dataLine][k] == PHONEMES[answer.top()]) res++;
-			total++;
-			answer.pop();
-		}
-		
-		// while(!answer.empty()){
-		// 	cout << PHONEMES[answer.top()] <<  " ";
-		// 	answer.pop();
-		// }
+		match[leftIndex] = double(res)/double(total);
+		cout << "Fraction matched for iteration " << leftIndex << " : " << match[leftIndex] << endl;
 	}
-	cout << "Fraction Matched : " << double(res)/double(total) << endl;
-*/
+	
+	double fracSum = 0;
+	rep(i,5) fracSum += match[i];
+	cout << "\nAverage Matched Percentage : " << (fracSum/5.0)*100.0 << endl;
+
 }
