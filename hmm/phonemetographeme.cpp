@@ -19,8 +19,8 @@ using namespace std;
 //--------------------------------------------------------------------------------------------------------
 
 
-vector<string> split_space(string s){
-	vector<string> ans;
+VS split_space(string s){
+	VS ans;
 	int index = 0;
 	s = s + " ";
 	while(s[index] == ' ') index++;
@@ -52,15 +52,15 @@ void remove_extra(string& s){
 //--------------------------------------------------------------------------------------------------------
 
 
-struct phonemeOccurence{
+struct alphabetOccurence{
 	int lineNum;
 	int phonemeNum;
-	phonemeOccurence(int l,int p) : lineNum(l), phonemeNum(p){}
+	alphabetOccurence(int l,int p) : lineNum(l), phonemeNum(p){}
 };
 
 
 
-vector<phonemeOccurence> phonemeOccurenceMap[30];
+vector<alphabetOccurence> alphabetOccurenceMap[30];
 map<string, int> phonemeHashMap;
 map<string, int> :: iterator phonemeItr;
 
@@ -78,10 +78,10 @@ int totalCount[STATES];								// s[i] to any state on any symbol
 
 char PHONEMES[STATES];
 // S0 corresponds to phoneme ""(epsilon)
-/*
+
 void buildOccurenceProbabilities()
 {
-	map<string, pair<int, vector<phonemeOccurence> > > :: iterator itr1, itr2;	
+	map<string, pair<int, vector<pho-nemeOccurence> > > :: iterator itr1, itr2;	
 
 	// Building starts
 	for (int i = 0; i < data.size(); i++){
@@ -102,38 +102,38 @@ void buildOccurenceProbabilities()
 	}
 	// Building done
 
-	rep(i, STATES){
-		rep(j, STATES){
-			int sum = 0;
-			rep(k, OBSERVATIONS){
-				sum += occurenceCount[i][j][k];
-			}
-			transitionCount[i][j] = sum;
-		}
-	}
+	// rep(i, STATES){
+	// 	rep(j, STATES){
+	// 		int sum = 0;
+	// 		rep(k, OBSERVATIONS){
+	// 			sum += occurenceCount[i][j][k];
+	// 		}
+	// 		transitionCount[i][j] = sum;
+	// 	}
+	// }
 
-	rep(i, STATES){
-		rep(j, OBSERVATIONS){
-			int sum = 0;
-			rep(k, STATES){
-				sum += occurenceCount[i][k][j];
-			}
-			observationCount[i][j] = sum;
-		}
-	}
+	// rep(i, STATES){
+	// 	rep(j, OBSERVATIONS){
+	// 		int sum = 0;
+	// 		rep(k, STATES){
+	// 			sum += occurenceCount[i][k][j];
+	// 		}
+	// 		observationCount[i][j] = sum;
+	// 	}
+	// }
 
 
-	rep(i, STATES){
-		int sum = 0;
-		rep(j, STATES){
-			sum += transitionCount[i][j];
-		}
-		totalCount[i] = sum;
-		// debug3(i, PHONEMES[i], totalCount[i]);
-	}
+	// rep(i, STATES){
+	// 	int sum = 0;
+	// 	rep(j, STATES){
+	// 		sum += transitionCount[i][j];
+	// 	}
+	// 	totalCount[i] = sum;
+	// 	// debug3(i, PHONEMES[i], totalCount[i]);
+	// }
 
 }
-*/
+
 //--------------------------------------------------------------------------------------------------------
 
 
@@ -150,7 +150,7 @@ int main()
 	file.open("cmu.txt");
 	int lineNum = 0, phonemeId = 0;
 	
-	PHONEMES[0] = '';
+	// PHONEMES[0] = '';
 
 	//--------------------------------------------------------------------------------------------------------
 	//--------------------------------------------------------------------------------------------------------
@@ -172,12 +172,14 @@ int main()
 
 		for(int state = 0; state < graphemes[0].size(); state++){
 
-			// phonemeItr = phonemeOccurenceMap.find(graphemes[0][state]);
+			phonemeItr = phonemeHashMap.find(graphemes[state + 1]);
 
-			phonemeOccurenceMap[int(graphemes[0][state] - 'A')].push_back(phonemeOccurence(lineNum - 1, state));
+			alphabetOccurenceMap[int(graphemes[0][state] - 'A')].push_back(alphabetOccurence(lineNum - 1, state));
 
-			// if (phonemeItr == phonemeOccurenceMap.end()){
-			// 	++phonemeId;
+			if (phonemeItr == phonemeHashMap.end()){
+				phonemeHashMap.insert(map<string, int> :: value_type(graphemes[state + 1], phonemeId));
+				++phonemeId;
+			}
 			// 	PHONEMES[phonemeId] = graphemes[state];
 			// 	vector<phonemeOccurence> newOccurenceVector;
 			// 	newOccurenceVector.push_back(phonemeOccurence(lineNum - 1, state));
@@ -190,7 +192,7 @@ int main()
 		}
 	}
 
-	debug(data.size());// phonemeOccurenceMap.size());
+	debug2(data.size(), phonemeHashMap.size());// phonemeOccurenceMap.size());
 
 	// Reading data done
 	//--------------------------------------------------------------------------------------------------------
@@ -199,7 +201,7 @@ int main()
 	//--------------------------------------------------------------------------------------------------------
 	// Building SEQSCORE dynamically
 
-	buildOccurenceProbabilities();
+	// buildOccurenceProbabilities();
 /*
 	int res = 0, total = 0;
 	for (int dataLine = 0; dataLine < data.size(); dataLine += 5){

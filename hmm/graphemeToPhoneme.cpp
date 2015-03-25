@@ -16,8 +16,9 @@ using namespace std;
 // Print Macros
 
 #define PRINTTRANS 0
-#define PRINTOBS 1
+#define PRINTOBS 0
 
+#define USERINPUT 0
 //--------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------
@@ -88,7 +89,7 @@ void buildOccurenceProbabilities()
 
 	// Building starts
 	for (int i = 0; i < data.size(); i++){
-		if (i%5 == leftIndex) continue;
+		if(!USERINPUT) if (i%5 == leftIndex) continue;
 		string OBS = data[i][0];
 		itr1 = phonemeOccurenceMap.find(data[i][1]);
 
@@ -140,9 +141,14 @@ void buildOccurenceProbabilities()
 
 	if (PRINTTRANS){
 		printf("\nPrinting Transition Table :: \n");
+		cout << "\t\t\t";
 		rep(i, 70) cout << PHONEMES[i+1] << "\t\t\t";
 		cout << endl;
-		rep(i, 70) {rep(j, 70) cout << fixed << setprecision(4) << double(transitionCount[i+1][j+1])/double(totalCount[i+1]) << "\t\t"; cout << "\n";}
+		rep(i, 70) {
+			cout << PHONEMES[i+1] << "\t\t";
+			rep(j, 70) cout << fixed << setprecision(4) << double(transitionCount[i+1][j+1])/double(totalCount[i+1]) << "\t\t"; 
+			cout << "\n";
+		}
 	}
 
 	if (PRINTOBS){
@@ -229,7 +235,7 @@ int main()
 		int res = 0, total = 0;
 		for (int dataLine = leftIndex; dataLine < data.size(); dataLine += 5){
 			string input = data[dataLine][0];
-			// cin >> input;
+			if (USERINPUT) cin >> input;
 
 			SEQSCORE[0][0] = 1.0;	// epsilon on state 0
 			BACKPTR[0][0] = 0;	// epsilon on state 0
@@ -280,11 +286,19 @@ int main()
 				indexThatMaximizes = BACKPTR[indexThatMaximizes][i+1];
 				answer.push(indexThatMaximizes);
 			}
-			
-			for (int k = 1; k < data[dataLine].size(); k++){
-				if (data[dataLine][k] == PHONEMES[answer.top()]) res++;
-				total++;
-				answer.pop();
+
+			if (USERINPUT){
+				while(!answer.empty()){
+					cout << PHONEMES[answer.top()] << " ";
+					answer.pop();
+				}
+				cout << endl;
+			} else{
+				for (int k = 1; k < data[dataLine].size(); k++){
+					if (data[dataLine][k] == PHONEMES[answer.top()]) res++;
+					total++;
+					answer.pop();
+				}
 			}
 			
 			// while(!answer.empty()){
