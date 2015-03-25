@@ -149,7 +149,7 @@ void buildOccurenceProbabilities()
 		cout << endl;
 		rep(i, 26) {
 			cout << char(i + 'A') << "\t\t";
-			rep(j, 26) cout << fixed << setprecision(4) << double(transitionCount[i+1][j+1])/*/double(totalCount[i+1])*/<< "\t\t"; 
+			rep(j, 26) cout << fixed << setprecision(4) << double(transitionCount[i+1][j+1])/double(totalCount[i+1])<< "\t\t"; 
 			cout << "\n";
 		}
 	}
