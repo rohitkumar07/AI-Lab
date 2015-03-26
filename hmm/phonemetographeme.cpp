@@ -15,10 +15,10 @@ using namespace std;
 
 // Print Macros
 
-#define PRINTTRANS 0
+#define PRINTTRANS 1
 #define PRINTOBS 0
 
-#define USERINPUT 0
+#define USERINPUT 1
 
 //--------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------
@@ -212,8 +212,7 @@ int main()
 
 			if (phonemeItr == phonemeHashMap.end()){
 				phonemeHashMap.insert(map<string, int> :: value_type(graphemes[state + 1], phonemeId));
-				PHONEMES[phonemeId] = graphemes[state + 1];
-				++phonemeId;
+				PHONEMES[phonemeId++] = graphemes[state + 1];
 			}
 		}
 	}
