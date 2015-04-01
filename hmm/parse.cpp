@@ -112,7 +112,8 @@ struct onephonemes
 		for (int i = 0; i < 26; ++i)
 		{	
 			for (int j = 0; j < 100; ++j)
-			{ v[i][j]=0;
+			{ 
+				v[i][j]=0;
 			}
 		}
 		

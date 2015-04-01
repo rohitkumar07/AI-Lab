@@ -193,6 +193,7 @@ int main()
 		remove_extra(graphemes[0]);
 
 		if(graphemes[0].size() != graphemes.size() - 1)	continue;	// Inconsistent data
+		// if(graphemes[0].size() > 5)	continue;	// Inconsistent data
 
 		++lineNum;
 		data.push_back(graphemes);
@@ -253,12 +254,14 @@ int main()
 			int observationLength = input.size();
 			for (int observationNum = 1; observationNum <= observationLength; observationNum++){
 				for (int state = 0; state <= totalStates; state++){
-					int maxState = 0;
+					double maxState = 0;
 					double maxVal = 0;
 					for (int j = 0; j <= totalStates; j++){
-						if (SEQSCORE[j][observationNum - 1]*occurenceCount[j][state][int(input[observationNum - 1] - 'A')] > maxVal){
-							maxVal = SEQSCORE[j][observationNum - 1]*occurenceCount[j][state][int(input[observationNum - 1] - 'A')];
+						double tempProb = double(occurenceCount[j][state][int(input[observationNum - 1] - 'A')])/double(totalCount[j]);
+						if (SEQSCORE[j][observationNum - 1]*tempProb > maxVal){
+							maxVal = SEQSCORE[j][observationNum - 1]*tempProb;
 							maxState = j;
+							// (double(transitionCount[j][state]*observationCount[j][int(input[observationNum - 1] - 'A')])/double(totalCount[j]*totalCount[j]))
 						}
 					}
 					SEQSCORE[state][observationNum] = maxVal;

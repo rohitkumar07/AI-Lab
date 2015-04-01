@@ -15,7 +15,7 @@ using namespace std;
 
 // Print Macros
 
-#define PRINTTRANS 1
+#define PRINTTRANS 0
 #define PRINTOBS 0
 
 #define USERINPUT 1
