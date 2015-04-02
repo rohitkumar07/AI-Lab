@@ -30,4 +30,45 @@ verify(_,_,_).
 automated_checker(A) :- A = fulladder,!, fulladder_truthtable([P,Q,R],[X,Y]), verify(fulladder, [P,Q,R], O), O = [X,Y].
 automated_checker(A) :- A = xor,!, xor_truthtable([P,Q],X), verify(xor, [P,Q], O), O is X.
 
+addone([0],0,[1]).
+addone([1],1,[0]).
+addone([H|T],B,C):-addone(T,B1,C1),B1 = 1, H = 1 ,B is 1,C = [0|C1].
+addone([H|T],B,C):-addone(T,B1,C1),B1 = 1, H = 0 ,B is 0,C = [1|C1].
+addone([H|T],B,C):-addone(T,B1,C1),B1 = 0,B is 0,C = [H|C1]. 
+allones([]).
+allones([1|T]):- allones(T).
+changetozeros([],[]).
+changetozeros([1|T],[0|X]):-changetozeros(T,X).
+nextsequence([],[]).
+nextsequence([0],[1]).
+nextsequence(A,Y):- addone(A,0,T1),Y = T1.
 
+
+my_append(L,[],L).
+my_append([H|L2],[H|T],L1) :- my_append(L2,T,L1),!.
+
+my_flatten([], []).
+my_flatten([H|L],P) :- is_list(H),my_flatten(L,L1),my_flatten(H,H1),!,my_append(P,H1,L1).
+my_flatten([H|L],P)	:- my_flatten(L,L1),!,my_append(P,[H],L1).
+
+%expected
+
+expected(P,X,A):-allones(X),truthtable(P,X,A1),A = [A1],!.
+expected(P,X,A):-nextsequence(X,Y),expected(P,Y,A1),truthtable(P,X,A2),A=[A2|A1].
+
+%endexpected
+
+%calculate
+calculate(P,X,A):-allones(X),verify(P,X,A1),A = [A1],!.
+calculate(P,X,A):-nextsequence(X,Y),calculate(P,Y,A1),verify(P,X,A2),A=[A2|A1].
+%endcalculate
+
+calculate_out(P,A):-P =xor,calculate(P,[0,0],A).
+calculate_out(P,A):-P =fulladder,calculate(P,[0,0,0],A1),my_flatten(A1,A).
+calculate_out(_,_).
+expected_out(P,A):- P = xor,expected(P,[0,0],A).
+expected_out(P,A):- P = fulladder,expected(P,[0,0,0],A1),my_flatten(A1,A).
+expected_out(_,_).
+
+checkfault(P):- calculate_out(P,A),expected_out(P,B),A \= B,write('Gate is fault').
+checkfault(_):- write('Gate is alright').
