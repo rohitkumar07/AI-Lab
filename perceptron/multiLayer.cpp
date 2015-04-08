@@ -20,9 +20,9 @@ using namespace std;
 #define COMPUTATIONALLAYERS 2 			// No. of input + hidden layers
 // #define HNODES 2						
 
-const int n = 2;					// no. of inputs in a pattern / nodes per hidden layer
+const int n = 3;					// no. of inputs in a pattern / nodes per hidden layer
 const int outputLength = 1;		// no. of outputs in a pattern
-const int inputLength = n;
+int inputLength = n - 1;
 
 
 /* weight of edge of jth node in ith layer to 
@@ -30,7 +30,7 @@ const int inputLength = n;
  * On the basis of fully feed forward network
  */
 
-#define INIT 0.001
+#define INIT 0.01
 
 double edgeWeights[COMPUTATIONALLAYERS - 1][n][n] = {INIT};
 double outputWeights[n][outputLength] = {INIT};		// last hidden layer to output layer
@@ -41,7 +41,7 @@ double biasOutputWeights[outputLength] = {INIT}; // one for each hidden node
 
 double learningRate = 0.8;
 
-#define ITERATIONLIMIT 1000000
+#define ITERATIONLIMIT 100000
 
 inline double sigmoid(double x)
 {
@@ -83,13 +83,6 @@ int main(){
 	rep(iterNum, ITERATIONLIMIT){
 		++nIterations;
 
-		double dot = 0;
-		// rep(i, n + 1){
-		// 	dot += weight[i]*table[currentRow][i];
-		// }	
-
-		// double observed = sigmoid(dot);
-
 		error = 0.0;
 
 		for (ll i = 0; i < nInputs; i++){
@@ -108,7 +101,7 @@ int main(){
 					rep(t, n){
 						tempOutput += edgeWeights[j-1][t][k] * intermediateValues[j-1][t];
 					}
-					tempOutput += biasWeights[j][k];		// value is always 1
+					// tempOutput += biasWeights[j][k];		// value is always 1
 					intermediateValues[j][k] = sigmoid(tempOutput);
 				}
 			}
@@ -119,7 +112,8 @@ int main(){
 				rep(t, n){
 					tempOutput += outputWeights[t][j] * intermediateValues[COMPUTATIONALLAYERS - 1][t];
 				}
-				finalOutputs[j] = sigmoid(tempOutput + biasOutputWeights[j]);
+				// tempOutput += biasOutputWeights[j];
+				finalOutputs[j] = sigmoid(tempOutput);
 			}
 			// Output calculation done
 
@@ -141,7 +135,7 @@ int main(){
 				rep(t, n){
 					outputWeights[t][j] += learningRate*outputLayerDeviation[j]*intermediateValues[COMPUTATIONALLAYERS - 1][t];
 				}
-				biasOutputWeights[j] += learningRate*outputLayerDeviation[j]; // value is 1 always
+				// biasOutputWeights[j] += learningRate*outputLayerDeviation[j]; // value is 1 always
 			}
 
 			// Backpropagation and deviation for inner layers
@@ -174,7 +168,7 @@ int main(){
 					rep(t, n){
 						edgeWeights[j-1][k][t] += learningRate*innerLayerDeviation[j][t]*intermediateValues[j - 1][k];
 					}
-					biasWeights[j][k] += learningRate*innerLayerDeviation[j][k];
+					// biasWeights[j][k] += learningRate*innerLayerDeviation[j][k];
 				}
 
 			}
@@ -207,8 +201,8 @@ int main(){
 						tempOutput += edgeWeights[j-1][t][k] * intermediateValues[j-1][t];
 						debug3(t, k , edgeWeights[j-1][t][k]);
 					}
-					tempOutput += biasWeights[j][k];		// value is always 1
-					debug3(j, k , biasWeights[j][k]);
+					// tempOutput += biasWeights[j][k];		// value is always 1
+					// debug3(j, k , biasWeights[j][k]);
 
 					intermediateValues[j][k] = sigmoid(tempOutput);
 				}
@@ -222,8 +216,8 @@ int main(){
 					debug3(t, j , outputWeights[t][j]);
 
 				}
-				debug2(j, biasOutputWeights[j]);
-				finalOutputs[j] = sigmoid(tempOutput + biasOutputWeights[j]);
+				// debug2(j, biasOutputWeights[j]);
+				finalOutputs[j] = sigmoid(tempOutput);// + biasOutputWeights[j]);
 			}
 			// Output calculation done
 

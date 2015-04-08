@@ -17,6 +17,8 @@ using namespace std;
 
 // Print Macros
 
+#define ITERATIONLIMIT 1000000
+
 double sigmoid(double x)
 {
 	return 1.0/(1.0 + exp(-x));
@@ -73,7 +75,7 @@ int main(){
 	double learningRate = 0.9;
 
 
-	rep(y,100000){
+	rep(y, ITERATIONLIMIT){
 		++nIterations;
 
 		// double 
@@ -131,4 +133,11 @@ int main(){
 	cout << "\n";
 	debug(nIterations);
 	cout << "Value of theta is: " << weight[n] << endl;
+	rep(i, nInputs){
+		double dot = 0;
+		rep(j, n + 1){
+			dot += weight[j]*table[i][j];
+		}
+		debug3(i, sigmoid(dot), outputs[i]);
+	}
 }
