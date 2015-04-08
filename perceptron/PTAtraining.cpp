@@ -11,9 +11,7 @@ using namespace std;
 #define forb(i,a,b) for(int i=(a); i>=(b); i--)
 #define ll long long
 #define pb push_back
-#define VS vector<string> 
 #define VI vector<int> 
-#define VVS vector<VS > 
 #define VVI vector<VI > 
 
 // Print Macros
@@ -64,11 +62,11 @@ int main(){
 
 	VI weight(n+1, 0);  // Initial weights
 
-	int currentRow = 0;
+	int currentRow = 0, nIterations = 0;
 
-	int nIterations = 0;
 	while(1){
 		++nIterations;
+
 		int dot = 0;
 		rep(i, n+1){
 			dot += weight[i]*table[currentRow][i];
@@ -82,6 +80,7 @@ int main(){
 		}
 		if (currentRow == nInputs) break; // success
 	}
+
 	cout << "Printing weights:: \n";
 	rep(i, n){
 		cout << weight[i] << " ";

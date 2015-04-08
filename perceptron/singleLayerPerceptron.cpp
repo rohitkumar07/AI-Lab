@@ -11,14 +11,16 @@ using namespace std;
 #define forb(i,a,b) for(int i=(a); i>=(b); i--)
 #define ll long long
 #define pb push_back
-#define VS vector<string> 
 #define VI vector<int> 
-#define VVS vector<VS > 
+#define VD vector<double> 
 #define VVI vector<VI > 
 
 // Print Macros
 
-
+double sigmoid(double x)
+{
+	return 1.0/(1.0 + exp(-x));
+}
 
 int main(){
 	int n;
@@ -26,6 +28,7 @@ int main(){
 	cin >> n;
 	ll nInputs = (1LL<<n);
 	VVI table(nInputs);
+	VI outputs(nInputs);
 	for (ll i = 0; i < nInputs; i++){
 		ll temp = i;
 		stack<int> rowNum;
@@ -46,42 +49,81 @@ int main(){
 			rowNum.pop();
 		}
 		cout << " : ";
-		table[i].pb(-1);	// for theta
-
+		table[i].pb(-1);
 		while(1){
 			int temp;
 			cin >> temp;
 			if (temp == 0 || temp == 1) {
-				if (temp == 0){
-					rep(t, table[i].size()){
-						table[i][t] *= -1;
-					}
-				}
+				outputs[i] = temp;
+				// if (temp == 0){
+				// 	rep(t, table[i].size()){
+				// 		table[i][t] *= -1;
+				// 	}
+				// }
 				break;
 			}
 			cout << "Invalid output of truth table. Enter again!\n";
 		}
 	}
 
-	VI weight(n+1, 0);  // Initial weights
+	VD weight(n + 1, 0);  // Initial weights
 
-	int currentRow = 0, nIterations = 0;
-	
-	while(1){
+	int nIterations = 0;
+
+	double learningRate = 0.9;
+
+
+	rep(y,100000){
 		++nIterations;
-		int dot = 0;
-		rep(i, n+1){
-			dot += weight[i]*table[currentRow][i];
-		}
-		if (dot > 0) currentRow++;
-		else{
-			rep(i, n+1){
-				weight[i] += table[currentRow][i];
+
+		// double 
+
+		double dot = 0;
+		// rep(i, n + 1){
+		// 	dot += weight[i]*table[currentRow][i];
+		// }	
+
+		// double observed = sigmoid(dot);
+
+		for (ll i = 0; i < nInputs; i++){
+			dot = 0;
+			rep(j, n + 1){
+				dot += weight[j]*table[i][j];
 			}
-			currentRow = 0;
+			double observed = sigmoid(dot);
+
+			double coeff = learningRate * (outputs[i] - observed) * observed * (1.0 - observed); 
+			rep(j, n+1){
+				weight[j] += coeff * table[i][j];
+			}
 		}
-		if (currentRow == nInputs) break; // success
+
+		double error = 0;
+
+		for (ll i = 0; i < nInputs; i++){
+			dot = 0;
+			rep(j, n+1){
+				dot += weight[j]*table[i][j];
+			}
+			double o = sigmoid(dot);
+			double t = outputs[i];
+			// debug3(i, o, t);
+			error += (t - o)*(t - o)/2.0;
+		}
+		
+		if (error < 0.1) break;
+
+
+		// if (dot > 0) currentRow++;
+		// else{
+		// 	rep(i, n+1){
+		// 		weight[i] += table[currentRow][i];
+		// 	}
+		// 	currentRow = 0;
+		// }
+		// if (currentRow == nInputs) break; // success
 	}
+
 	cout << "Printing weights:: \n";
 	rep(i, n){
 		cout << weight[i] << " ";
