@@ -91,7 +91,7 @@ void buildOccurenceProbabilities()
 
 	// Building starts
 	for (int i = 0; i < data.size(); i++){
-		if(!USERINPUT) if (i%5 == leftIndex) continue;
+		// if(!USERINPUT) if (i%5 == leftIndex) continue;
 		string OBS = data[i][0];
 		itr1 = phonemeOccurenceMap.find(data[i][1]);
 
@@ -230,15 +230,17 @@ int main()
 	//--------------------------------------------------------------------------------------------------------
 	// Building SEQSCORE dynamically
 
-	double match[5];
-	for (leftIndex = 0; leftIndex < 5; leftIndex++){
+	// double match[5];
+	// for (leftIndex = 0; leftIndex < 5; leftIndex++){
 
 		buildOccurenceProbabilities();
 
-		int res = 0, total = 0;
-		for (int dataLine = leftIndex; dataLine < data.size(); dataLine += 5){
-			string input = data[dataLine][0];
+		// int res = 0, total = 0;
+		// for (int dataLine = leftIndex; dataLine < data.size(); dataLine += 5){
+			string input ;//= data[dataLine][0];
 			if (USERINPUT) cin >> input;
+
+			remove_extra(input);
 
 			SEQSCORE[0][0] = 1.0;	// epsilon on state 0
 			BACKPTR[0][0] = 0;	// epsilon on state 0
@@ -294,42 +296,16 @@ int main()
 
 			if (USERINPUT){
 				while(!answer.empty()){
-					cout << PHONEMES[answer.top()] << " ";
+					string s = PHONEMES[answer.top()];
+					remove_extra(s);
+					cout << s;
 					answer.pop();
 				}
 				cout << endl;
-			} else{
-				for (int k = 1; k < data[dataLine].size(); k++){
-					string s1 = data[dataLine][k];
-					string s2 = PHONEMES[answer.top()];
-					remove_extra(s1);
-					remove_extra(s2);
-					if (s1 == s2) res++;
-					phonemeItr = phonemeOccurenceMap.find(data[dataLine][k]);
-					confusionCount[(phonemeItr->second).first][answer.top()]++;
-					total++;
-					answer.pop();
-				}
-			}
+			} 
 			
-		}
-		match[leftIndex] = double(res)/double(total);
-		cerr << "Fraction matched for iteration " << leftIndex << " : " << match[leftIndex] << endl;
-	}
+			
+		
+		// match[leftIndex] = double(res)/double(total);
 	
-	double fracSum = 0;
-	rep(i,5) fracSum += match[i];
-	cerr << "\nAverage Matched Percentage : " << (fracSum/5.0)*100.0 << endl;
-
-	if (CONFUSION){
-		printf("\nPrinting Confusion Matrix :: \n");
-		cout << "\t\t";
-		rep(i, 70) cout << PHONEMES[i+1] << "\t\t\t";
-		cout << endl;
-		rep(i, 70) {
-			cout << PHONEMES[i+1] << "\t\t";
-			rep(j, 70) cout << confusionCount[i+1][j+1] << "\t\t\t"; 
-			cout << "\n";
-		}
-	}
 }
