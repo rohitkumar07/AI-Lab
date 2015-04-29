@@ -18,22 +18,30 @@ using namespace std;
 // Print Macros
 
 #define COMPUTATIONALLAYERS 2 			// No. of input + hidden layers
-// #define HNODES 2						// 
+// #define HNODES 2						
 
-const int n = 2;					// no. of inputs in a pattern / nodes per hidden layer
+const int n = 3;					// no. of inputs in a pattern / nodes per hidden layer
 const int outputLength = 1;		// no. of outputs in a pattern
+int inputLength = n - 1;
+
 
 /* weight of edge of jth node in ith layer to 
  * kth node in (i+1)th layer
  * On the basis of fully feed forward network
  */
 
-double edgeWeights[COMPUTATIONALLAYERS - 1][n][n];
-double outputWeights[n][outputLength];		// last hidden layer to output layer
+#define INIT 0.01
 
-double learningRate = 0.7;
+double edgeWeights[COMPUTATIONALLAYERS - 1][n][n] = {INIT};
+double outputWeights[n][outputLength] = {INIT};		// last hidden layer to output layer
 
-#define ITERATIONLIMIT 100
+double biasWeights[COMPUTATIONALLAYERS][n] = {INIT}; // one for each hidden node
+double biasOutputWeights[outputLength] = {INIT}; // one for each hidden node
+
+
+double learningRate = 0.8;
+
+#define ITERATIONLIMIT 100000
 
 inline double sigmoid(double x)
 {
@@ -43,12 +51,12 @@ inline double sigmoid(double x)
 int main(){
 	// cout << "Enter no. of variables in truth table: ";
 	// cin >> n >> outputLength;
-	ll nInputs = (1LL<<n);
+	ll nInputs = (1LL<<inputLength);
 	VVI table(nInputs);
 	VVI outputs(nInputs);
 	for (ll i = 0; i < nInputs; i++){
 		int temp;
-		rep(j,n) {
+		rep(j,inputLength) {
 			cin >> temp;
 			assert(temp == 0 or temp == 1);
 			table[i].pb(temp);
@@ -61,21 +69,21 @@ int main(){
 		}
 	}
 
-	double intermediateValues[COMPUTATIONALLAYERS][n];
+	double intermediateValues[COMPUTATIONALLAYERS][n];	// intermediiate outputs
 	double finalOutputs[outputLength];
 	double outputLayerDeviation[outputLength];
-	double innerLayerDeviation[n];
+	double innerLayerDeviation[n][n];
 
+
+
+
+	double error = 0.0;
 	int nIterations = 0;
+
 	rep(iterNum, ITERATIONLIMIT){
 		++nIterations;
 
-		double dot = 0;
-		// rep(i, n + 1){
-		// 	dot += weight[i]*table[currentRow][i];
-		// }	
-
-		// double observed = sigmoid(dot);
+		error = 0.0;
 
 		for (ll i = 0; i < nInputs; i++){
 			
@@ -93,6 +101,7 @@ int main(){
 					rep(t, n){
 						tempOutput += edgeWeights[j-1][t][k] * intermediateValues[j-1][t];
 					}
+					// tempOutput += biasWeights[j][k];		// value is always 1
 					intermediateValues[j][k] = sigmoid(tempOutput);
 				}
 			}
@@ -103,10 +112,17 @@ int main(){
 				rep(t, n){
 					tempOutput += outputWeights[t][j] * intermediateValues[COMPUTATIONALLAYERS - 1][t];
 				}
+				// tempOutput += biasOutputWeights[j];
 				finalOutputs[j] = sigmoid(tempOutput);
 			}
 			// Output calculation done
 
+			rep(j, outputLength){
+				// debug3(i, outputs[i][j], finalOutputs[j]);
+				error += (finalOutputs[j] - outputs[i][j])*(finalOutputs[j] - outputs[i][j])/2.0;
+			}
+
+			// ----------------------------------------------------------------------------------------------------
 
 			// deviation (delta) for output layer
 			rep(j, outputLength){
@@ -119,57 +135,98 @@ int main(){
 				rep(t, n){
 					outputWeights[t][j] += learningRate*outputLayerDeviation[j]*intermediateValues[COMPUTATIONALLAYERS - 1][t];
 				}
+				// biasOutputWeights[j] += learningRate*outputLayerDeviation[j]; // value is 1 always
 			}
 
 			// Backpropagation and deviation for inner layers
 
-			forb(j, COMPUTATIONALLAYERS - 2, 0);
+			forb(j, COMPUTATIONALLAYERS - 1, 1){
 
+				// Calculating deviations for the current layer
+				rep(k, n){
+					
+					double tempDeviation = 0;
+					if (j == COMPUTATIONALLAYERS - 1){
+						rep(t, outputLength){
+							tempDeviation += outputWeights[k][t]*outputLayerDeviation[t]*intermediateValues[j][t]*(1.0 - intermediateValues[j][t]);
+						}
+					}
 
+					else{
+						rep(t,n){
+							tempDeviation += edgeWeights[j][k][t]*innerLayerDeviation[j+1][t]*intermediateValues[j][t]*(1.0 - intermediateValues[j][t]);
+						}
+					}
 
-		// 	dot = 0;
-		// 	rep(j, n + 1){
-		// 		dot += weight[j]*table[i][j];
-		// 	}
-		// 	double observed = sigmoid(dot);
+					innerLayerDeviation[j][k] = tempDeviation;
 
-		// 	double coeff = learningRate * (outputs[i] - observed) * observed * (1.0 - observed); 
-		// 	rep(j, n+1){
-		// 		weight[j] += coeff * table[i][j];
-		// 	}
-		// }
+				}
 
-		// double error = 0;
+				// Updating edge weights for the inner layers
 
-		// for (ll i = 0; i < nInputs; i++){
-		// 	dot = 0;
-		// 	rep(j, n+1){
-		// 		dot += weight[j]*table[i][j];
-		// 	}
-		// 	double o = sigmoid(dot);
-		// 	double t = outputs[i];
-		// 	// debug3(i, o, t);
-		// 	error += (t - o)*(t - o)/2.0;
-		// }
-		
-		// if (error < 0.1) break;
+				rep(k, n){
+					rep(t, n){
+						edgeWeights[j-1][k][t] += learningRate*innerLayerDeviation[j][t]*intermediateValues[j - 1][k];
+					}
+					// biasWeights[j][k] += learningRate*innerLayerDeviation[j][k];
+				}
 
-
-		// if (dot > 0) currentRow++;
-		// else{
-		// 	rep(i, n+1){
-		// 		weight[i] += table[currentRow][i];
-		// 	}
-		// 	currentRow = 0;
+			}
 		}
+
+		// debug(error);
+
 		// if (currentRow == nInputs) break; // success
 	}
 
 	cout << "Printing weights:: \n";
-	rep(i, n){
-		// cout << weight[i] << " ";
+	for (ll i = 0; i < nInputs; i++){
+			// rep(j, inputLength) cout << table[i][j] << " " ;
+			// cout << " :: " ;
+			/*
+			 * Feeding inputs to input layer
+			 */
+			/*
+			 * Feeding inputs to input layer
+			 */
+			rep(j,n){
+				intermediateValues[0][j] = table[i][j];
+			}
+
+			// Intermediate output calculation
+			forn(j, 1, COMPUTATIONALLAYERS - 1){
+				rep(k, n){
+					double tempOutput = 0;
+					rep(t, n){
+						tempOutput += edgeWeights[j-1][t][k] * intermediateValues[j-1][t];
+						debug3(t, k , edgeWeights[j-1][t][k]);
+					}
+					// tempOutput += biasWeights[j][k];		// value is always 1
+					// debug3(j, k , biasWeights[j][k]);
+
+					intermediateValues[j][k] = sigmoid(tempOutput);
+				}
+			}
+
+			// Final output calculation
+			rep(j, outputLength){
+				double tempOutput = 0;
+				rep(t, n){
+					tempOutput += outputWeights[t][j] * intermediateValues[COMPUTATIONALLAYERS - 1][t];
+					debug3(t, j , outputWeights[t][j]);
+
+				}
+				// debug2(j, biasOutputWeights[j]);
+				finalOutputs[j] = sigmoid(tempOutput);// + biasOutputWeights[j]);
+			}
+			// Output calculation done
+
+			rep(j, outputLength) debug(finalOutputs[j]);
+			// cout << endl;
 	}
+
 	cout << "\n";
 	debug(nIterations);
+	debug(error);
 	// cout << "Value of theta is: " << weight[n] << endl;
 }
