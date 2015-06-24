@@ -1,2 +1,2 @@
 # AI-Lab
-AI Assignments
+AI Lab Assignments
