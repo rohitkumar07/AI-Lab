@@ -1,2 +1,1 @@
-# AI-Lab
-AI Lab Assignments
+Artificial Intelligence Assignments
